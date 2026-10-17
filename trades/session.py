@@ -114,15 +114,16 @@ def evaluate(snap: dict, account: dict, s: Settings, post=requests.post) -> dict
         account=json.dumps(account, indent=1), setups="; ".join(s.crypto_allowed_setups))
     headers = {"Authorization": f"Bearer {s.jev_key}"} if s.jev_key else {}
     response = post(OPENROUTER_CHAT_URL, headers=headers, timeout=90, json={
-        "model": EVALUATOR_MODEL, "max_tokens": 700, "temperature": 0.2,
+        "model": EVALUATOR_MODEL, "max_tokens": 2000, "temperature": 0.2,
         "messages": [{"role": "user", "content": prompt}]})
     if response.status_code != 200:
         raise RuntimeError(f"evaluator HTTP {response.status_code}")
     payload = response.json()
-    text = payload["choices"][0]["message"]["content"]
+    choice = payload["choices"][0]
+    text = choice["message"].get("content") or ""
     match = re.search(r"\{.*\}", text, re.S)
     if not match:
-        raise ValueError("evaluator returned no JSON")
+        raise ValueError(f"evaluator returned no JSON (finish_reason {choice.get('finish_reason')})")
     out = json.loads(match.group(0))
     out["view"] = str(out.get("view", "hold")).lower()
     out["usage"] = payload.get("usage")
