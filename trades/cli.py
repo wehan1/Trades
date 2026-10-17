@@ -90,6 +90,43 @@ def cmd_protect(args, s):
         print("PAPER_EXECUTION is off: nothing was changed.")
 
 
+def cmd_backtest(args, s):
+    """Both intraday setups, at the given settings, on Alpaca's 15-minute history."""
+    from dataclasses import replace as dc_replace
+    from datetime import timedelta
+
+    from trades import intraday
+    from trades.config import ALPACA_DATA_URL
+
+    broker = _broker(s)
+    if broker is None:
+        return
+    get = lambda path, **params: broker._get(ALPACA_DATA_URL, path, **params)
+    cache = s.data_dir / "bars"
+    start = datetime.fromisoformat(args.start).date()
+    warmup = (start - timedelta(days=90)).isoformat()
+    bars, bias, hold = {}, {}, {}
+    for pair in s.crypto_universe:
+        bars[pair] = intraday.fetch_bars(get, pair, "15Min", args.start, args.end, cache)
+        bias[pair] = intraday.daily_bias(intraday.fetch_bars(get, pair, "1Day", warmup, args.end, cache), 50)
+        hold[pair] = intraday.buy_and_hold(bars[pair])
+        print(f"{pair}: {len(bars[pair])} bars, buy and hold {hold[pair]:+.2f}%")
+    settings = {"yours (75% / 3% risk / 6% day)": dict(max_exposure_pct=75, risk_pct=3, daily_loss_pct=6),
+                "conservative (30% / 1% / 2%)": dict(max_exposure_pct=30, risk_pct=1, daily_loss_pct=2)}
+    results = []
+    for setup in intraday.SETUPS:
+        for name, values in settings.items():
+            r = intraday.backtest(bars, bias, dc_replace(intraday.Params(setup=setup), **values))
+            r["name"] = f"{setup} · {name}"
+            results.append(r)
+            print(f"{r['name']:<45} return {r['return_pct']:+7.2f}%  max drawdown {r['max_drawdown_pct']:5.2f}%  "
+                  f"worst day {r['worst_day_pct']:+6.2f}%  exits {r['exits']:4}  win {r['win_rate_pct']}%  "
+                  f"fees ${r['fees_paid']:,.0f}")
+    out = s.data_dir / "backtest.json"
+    out.write_text(json.dumps({"buy_and_hold_pct": hold, "results": results}, indent=1))
+    print(f"saved {out}")
+
+
 def cmd_performance(args, s):
     try:
         broker = AlpacaPaper(s)
@@ -123,6 +160,11 @@ def main(argv=None):
 
     sub.add_parser("evaluate", help="score the guardrail on the labeled test ideas").set_defaults(func=cmd_evaluate)
     sub.add_parser("protect", help="keep every crypto position under its stop (run hourly)").set_defaults(func=cmd_protect)
+    p = sub.add_parser("backtest", help="backtest both intraday setups on Alpaca 15-minute crypto history")
+    p.add_argument("--start", required=True, help="YYYY-MM-DD")
+    p.add_argument("--end", required=True, help="YYYY-MM-DD")
+    p.set_defaults(func=cmd_backtest)
+
     sub.add_parser("performance", help="paper account equity").set_defaults(func=cmd_performance)
 
     p = sub.add_parser("serve", help="start the dashboard")

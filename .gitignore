@@ -10,3 +10,5 @@ data/jev_cache.json
 data/evaluation.json
 data/reports/
 screenshots/
+data/bars/
+data/backtest.json
