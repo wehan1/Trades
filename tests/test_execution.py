@@ -113,3 +113,18 @@ def test_config_network_secrets(monkeypatch):
     monkeypatch.setenv("NETWORK_SECRETS", "false")
     s = config.load()
     assert not s.jev_configured and not s.alpaca_configured
+
+
+def test_dust_is_not_a_position(settings):
+    # 0.000000219 BTC left after a paper exit made "adding_to_loser" block every later BTC buy.
+    from trades.alpaca import AlpacaPaper
+    broker = AlpacaPaper(replace(settings, alpaca_key="k", alpaca_secret="s"))
+    broker.account = lambda: {"equity": "5099", "last_equity": "5099", "buying_power": "5099",
+                              "non_marginable_buying_power": "5099", "crypto_status": "ACTIVE"}
+    broker.todays_fills = lambda: []
+    dust = {"symbol": "BTCUSD", "asset_class": "crypto", "qty": "0.000000219", "avg_entry_price": "81529",
+            "market_value": "0.0178", "unrealized_plpc": "-0.0001"}
+    broker.positions = lambda: [dust]
+    assert "position" not in broker.account_facts("BTC/USD")
+    broker.positions = lambda: [{**dust, "qty": "0.01", "market_value": "815"}]
+    assert broker.account_facts("BTC/USD")["position"]["qty"] == 0.01

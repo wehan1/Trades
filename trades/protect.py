@@ -12,6 +12,7 @@ from __future__ import annotations
 import math
 import time
 
+from trades.alpaca import DUST_USD
 from trades.assets import crypto_pair, is_crypto
 from trades.config import Settings
 
@@ -24,8 +25,6 @@ def fmt_qty(x: float) -> str:
     """Alpaca keeps crypto quantities to 9 decimals; rounding coarser leaves dust behind."""
     return f"{math.floor(x * 1e9 + 1e-6) / 1e9:.9f}".rstrip("0").rstrip(".")
 
-
-DUST_USD = 1.0      # positions worth less than this cannot be traded or protected
 
 
 def stop_order(pair: str, qty: float, stop: float, s: Settings) -> dict:

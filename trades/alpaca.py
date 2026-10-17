@@ -16,6 +16,8 @@ import requests
 from trades.assets import is_crypto, position_symbol
 from trades.config import ALPACA_DATA_URL, ALPACA_TRADING_URL, Settings
 
+DUST_USD = 1.0      # positions worth less than this cannot be traded or protected
+
 
 class AlpacaError(Exception):
     pass
@@ -133,7 +135,9 @@ class AlpacaPaper:
         crypto_value = sum(abs(float(p["market_value"])) for p in held if p.get("asset_class") == "crypto")
         facts["crypto_exposure_pct"] = round(crypto_value / equity * 100, 2) if equity else 0.0
         position = next((p for p in held if p.get("symbol") == position_symbol(symbol)), None)
-        if position:
+        # Dust left by an exit is not a position: counting it would make "never
+        # add to a losing position" block every later buy of the coin.
+        if position and abs(float(position["market_value"])) >= DUST_USD:
             facts["position"] = {
                 "qty": float(position["qty"]),
                 "avg_entry_price": float(position["avg_entry_price"]),
