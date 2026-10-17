@@ -89,6 +89,9 @@ class CryptoBroker:
     def open_orders(self, symbol):
         return [o for o in self.open if o["symbol"] == symbol]
 
+    def filled_buys(self, symbol):
+        return []
+
     def cancel_order(self, order_id):
         self.cancelled.append(order_id)
         self.open = [o for o in self.open if o["id"] != order_id]
@@ -178,3 +181,20 @@ def test_agent_desk_maps_crypto(settings, monkeypatch):
     assert calls == {"analysts": ("market", "social", "news"), "benchmark": "BTC-USD",
                      "symbol": "ETH-USD", "asset_type": "crypto"}
     assert (p.ticker, p.side, p.stop, p.size_pct) == ("ETH/USD", "buy", 3610.0, 5.0)
+
+
+def test_stop_is_stamped_into_the_entry_order_and_recovered(settings):
+    broker = CryptoBroker()
+    execution.run(approved(settings), replace(settings, paper_execution=True), broker)
+    entry = broker.orders[0]
+    assert entry["client_order_id"].endswith("-s97500.0")
+    broker.filled_buys = lambda pair: [{"side": "buy", "status": "filled", "client_order_id": entry["client_order_id"]}]
+    assert protect.stop_from_orders(broker, "BTC/USD") == 97500.0
+
+
+def test_protect_uses_the_order_stamp_when_no_log_survived(settings):
+    s = replace(settings, paper_execution=True)
+    broker = CryptoBroker(positions={"BTC/USD": 0.05})
+    broker.filled_buys = lambda pair: [{"side": "buy", "status": "filled", "client_order_id": "trades-abc-s97500"}]
+    action = protect.run(s, broker, [])[0]
+    assert action["note"] == "no stop order: place one" and broker.orders[-1]["stop_price"] == "97500.0"

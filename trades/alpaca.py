@@ -88,6 +88,12 @@ class AlpacaPaper:
     def open_orders(self, symbol: str) -> list[dict]:
         return self._get(ALPACA_TRADING_URL, "/v2/orders", status="open", symbols=symbol) or []
 
+    def filled_buys(self, symbol: str) -> list[dict]:
+        """Recent filled buy orders for ``symbol``, newest first."""
+        orders = self._get(ALPACA_TRADING_URL, "/v2/orders", status="closed", symbols=symbol,
+                           direction="desc", limit=50) or []
+        return [o for o in orders if o.get("side") == "buy" and o.get("status") == "filled"]
+
     def order(self, order_id: str) -> dict:
         return self._get(ALPACA_TRADING_URL, f"/v2/orders/{order_id}")
 

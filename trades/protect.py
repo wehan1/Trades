@@ -44,6 +44,18 @@ def recorded_stops(records: list[dict]) -> dict[str, float]:
     return stops
 
 
+def stop_from_orders(broker, pair: str) -> float | None:
+    """The stop stamped into the newest filled entry's client_order_id ("-s<price>")."""
+    for o in broker.filled_buys(pair):
+        tag = (o.get("client_order_id") or "").rpartition("-s")[2]
+        if (o.get("client_order_id") or "").startswith("trades-") and tag:
+            try:
+                return float(tag)
+            except ValueError:
+                continue
+    return None
+
+
 def ensure(broker, s: Settings, pair: str, stop: float | None, price: float | None = None) -> dict:
     """Bring one pair's stop in line with its position. Returns what was found and done."""
     position = broker.position(pair)
@@ -97,5 +109,6 @@ def run(s: Settings, broker, records: list[dict]) -> list[dict]:
         if position.get("asset_class") != "crypto":
             continue
         pair = crypto_pair(position["symbol"]) or position["symbol"]
-        actions.append(ensure(broker, s, pair, stops.get(pair), float(position["current_price"])))
+        stop = stops.get(pair) or stop_from_orders(broker, pair)
+        actions.append(ensure(broker, s, pair, stop, float(position["current_price"])))
     return actions

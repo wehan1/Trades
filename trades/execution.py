@@ -71,7 +71,9 @@ def _crypto_order(p: Proposal, facts: dict, price: float) -> tuple[dict | None, 
     order = {
         "symbol": p.ticker, "qty": protect.fmt_qty(qty), "side": p.side,
         "type": "market", "time_in_force": "gtc",
-        "client_order_id": f"trades-{p.id}",
+        # The stop rides in the order's ID, so a fresh session can recover it
+        # from Alpaca even when no local log survived.
+        "client_order_id": f"trades-{p.id}" + (f"-s{protect.fmt_price(float(p.stop))}" if p.stop is not None else ""),
     }
     return order, f"{protect.fmt_qty(qty)} {p.ticker.split('/')[0]} at about {price:g} = ${qty * price:,.0f}"
 

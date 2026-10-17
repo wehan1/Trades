@@ -34,9 +34,12 @@ if [ "$after" -gt "$before" ]; then
   cp data/records.jsonl "$log/records.jsonl"
   git -C "$log" -c user.name="trades desk" -c user.email="desk@users.noreply.github.com" \
       commit -qam "desk log: $mode $(date -u +%Y-%m-%dT%H:%MZ)"
+  saved=no
   for i in 1 2 3; do
-    git -C "$log" push -q origin HEAD:desk-log && break
-    git -C "$log" pull -q --rebase origin desk-log
+    if git -C "$log" push -q origin HEAD:desk-log; then saved=yes; break; fi
+    git -C "$log" pull -q --rebase origin desk-log || break
   done
   git worktree remove --force "$log"
+  # Not fatal: stops are also recoverable from the entry orders at Alpaca.
+  [ "$saved" = yes ] || echo "WARNING: could not save the desk log to the desk-log branch (no push access?)"
 fi
