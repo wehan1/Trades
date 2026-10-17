@@ -122,6 +122,9 @@ def cmd_backtest(args, s):
             print(f"{r['name']:<45} return {r['return_pct']:+7.2f}%  max drawdown {r['max_drawdown_pct']:5.2f}%  "
                   f"worst day {r['worst_day_pct']:+6.2f}%  exits {r['exits']:4}  win {r['win_rate_pct']}%  "
                   f"fees ${r['fees_paid']:,.0f}")
+            for group in ("by_pair", "by_session"):
+                print("    " + "  ".join(f"{k}: {v['exits']} exits, ${v['pnl']:+,.0f}, win {v['win_rate_pct']}%"
+                                         for k, v in r[group].items()))
     out = s.data_dir / "backtest.json"
     out.write_text(json.dumps({"buy_and_hold_pct": hold, "results": results}, indent=1))
     print(f"saved {out}")

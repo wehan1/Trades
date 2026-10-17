@@ -165,6 +165,7 @@ class Tranche:
     qty: float
     entry: float
     stop: float
+    session: str = ""
 
 
 def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: Params,
@@ -175,7 +176,7 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
     book: dict[str, list[Tranche]] = {pair: [] for pair in bars}
     last_price = {pair: None for pair in bars}
     tapes = {pair: _Tape() for pair in bars}
-    pending: dict[str, tuple] = {}            # pair -> ("buy", stop) | ("exit",)
+    pending: dict[str, tuple] = {}            # pair -> ("buy", stop, session) | ("exit",)
     entries_today: dict[tuple, int] = {}
     day_start_equity: dict[date, float] = {}
     trades, equity_curve = [], []
@@ -189,7 +190,7 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
             fill = price * (1 - cost)
             fees += t.qty * price * p.fee_pct / 100
             cash += t.qty * fill
-            trades.append({"pair": pair, "exit_time": when.isoformat(), "entry": t.entry,
+            trades.append({"pair": pair, "session": t.session, "exit_time": when.isoformat(), "entry": t.entry,
                            "exit": fill, "qty": t.qty, "pnl": t.qty * (fill - t.entry), "why": why})
         book[pair] = []
 
@@ -213,7 +214,7 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
                 if qty * fill >= 10:
                     cash -= qty * fill
                     fees += qty * bar.o * p.fee_pct / 100
-                    book[pair].append(Tranche(qty, fill, stop))
+                    book[pair].append(Tranche(qty, fill, stop, order[2]))
 
         # Stops trade through intrabar: out at the stop, or the open if it gapped below.
         hit = [x for x in book[pair] if bar.l <= x.stop]
@@ -221,8 +222,8 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
             price = min(bar.o, x.stop) * (1 - cost)
             fees += x.qty * min(bar.o, x.stop) * p.fee_pct / 100
             cash += x.qty * price
-            trades.append({"pair": pair, "exit_time": t.isoformat(), "entry": x.entry, "exit": price,
-                           "qty": x.qty, "pnl": x.qty * (price - x.entry), "why": "stop"})
+            trades.append({"pair": pair, "session": x.session, "exit_time": t.isoformat(), "entry": x.entry,
+                           "exit": price, "qty": x.qty, "pnl": x.qty * (price - x.entry), "why": "stop"})
         book[pair] = [x for x in book[pair] if x not in hit]
 
         last_price[pair] = bar.c
@@ -240,7 +241,7 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
                 if (stop is not None and bias.get(pair, {}).get(day) and not adding_to_loser and not down_today
                         and entries_today.get(key, 0) < p.max_entries_per_coin_day
                         and (bar.c - stop) / bar.c * 100 >= p.min_stop_pct):
-                    pending[pair] = ("buy", stop)
+                    pending[pair] = ("buy", stop, sess[0])
                     entries_today[key] = entries_today.get(key, 0) + 1
                     tape.entered_this_session = True
             tape.traded_above_vwap |= bar.c > vwap
@@ -258,6 +259,15 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
     days = sorted(daily_close)
     daily_returns = [daily_close[b] / daily_close[a] - 1 for a, b in zip(days, days[1:])]
     wins = [x for x in trades if x["pnl"] > 0]
+
+    def breakdown(key):
+        groups = {}
+        for x in trades:
+            groups.setdefault(x[key], []).append(x)
+        return {k: {"exits": len(v), "pnl": round(sum(x["pnl"] for x in v), 2),
+                    "win_rate_pct": round(sum(x["pnl"] > 0 for x in v) / len(v) * 100, 1)}
+                for k, v in sorted(groups.items())}
+
     return {
         "params": asdict(p),
         "start": timeline[0][0].isoformat() if timeline else None,
@@ -269,6 +279,8 @@ def backtest(bars: dict[str, list[Bar]], bias: dict[str, dict[date, bool]], p: P
         "win_rate_pct": round(len(wins) / len(trades) * 100, 1) if trades else None,
         "fees_paid": round(fees, 2),
         "open_positions_at_end": {pr: len(ts) for pr, ts in book.items() if ts},
+        "by_pair": breakdown("pair"),
+        "by_session": breakdown("session"),
     }
 
 
