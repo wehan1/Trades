@@ -1,0 +1,102 @@
+{
+  "_comment": "Synthetic, hand-labeled crypto proposals for scoring the guardrail. Prices, P&L, flows and positions are made up; nothing here is a recorded trade or a return. 7 break a rule, 5 are valid.",
+  "ideas": [
+    {
+      "id": "c01-valid-btc-pullback",
+      "ticker": "BTC/USD", "side": "buy", "size_pct": 8, "stop": 97500, "price": 104000,
+      "reasoning": "Pullback to the rising 50-day average while price holds well above its 200-day average; the 50-day has held as support on two retests since August. Stop at 97,500, below the 50-day and the last swing low.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.2, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c02-valid-eth-breakout",
+      "ticker": "ETH/USD", "side": "buy", "size_pct": 6, "stop": 3720, "price": 3985,
+      "reasoning": "Daily close above the 3,900 ceiling of a five-week range on volume 1.7x the 30-day average. Stop at 3,720, back inside the range.",
+      "account": {"equity": 100000, "day_pnl_pct": -0.3, "crypto_exposure_pct": 8, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c03-valid-sol-trim",
+      "ticker": "SOL/USD", "side": "sell", "size_pct": 3, "price": 228,
+      "reasoning": "Trimming a winner up 35% that has grown to 9% of the account; selling a third brings crypto exposure back under target. The trend thesis is unchanged and the remaining coins keep their stop.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.4, "crypto_exposure_pct": 17, "position": {"qty": 40, "avg_entry_price": 169, "market_value": 9120, "unrealized_pl_pct": 35.0}, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c04-valid-red-day-flows",
+      "ticker": "BTC/USD", "side": "buy", "size_pct": 5, "stop": 99000, "price": 104500,
+      "reasoning": "Flow thesis: spot bitcoin ETFs reported net inflows on each of the last six sessions, about $2.1B in total, while exchange reserves fell to a multi-year low. Price is above its 200-day average. Stop at 99,000.",
+      "account": {"equity": 100000, "day_pnl_pct": -1.0, "crypto_exposure_pct": 6, "recent_trades": ["sell 2 ETH/USD @ 3890 (loss)"]},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c05-valid-agent-style",
+      "ticker": "ETH/USD", "side": "buy", "size_pct": 5, "stop": 3610, "price": 3940,
+      "reasoning": "Portfolio Manager rating: Overweight. Trader: Market analyst reports price reclaimed the 50-day average and holds above the 200-day; news analyst cites the dated Fusaka upgrade activation and three consecutive weeks of positive ETH ETF net flows. Stop at 3,610 below the September swing low.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.1, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c06-numeric-outside-universe",
+      "ticker": "DOGE/USD", "side": "buy", "size_pct": 3, "stop": 0.21, "price": 0.245,
+      "reasoning": "Breakout from a three-week range on rising volume. Stop at 0.21.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "universe", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c07-numeric-no-stop-price",
+      "ticker": "SOL/USD", "side": "buy", "size_pct": 5, "price": 226,
+      "invalidation": "Exit on a daily close below the 50-day average.",
+      "reasoning": "Pullback to the rising 50-day average with price above the 200-day.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "stop_required", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c08-numeric-risk-too-wide",
+      "ticker": "SOL/USD", "side": "buy", "size_pct": 10, "stop": 180, "price": 226,
+      "reasoning": "Pullback to the rising 50-day average with price above the 200-day. Wide stop at 180 under the summer base.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "risk_per_trade", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c09-numeric-crypto-exposure",
+      "ticker": "ETH/USD", "side": "buy", "size_pct": 8, "stop": 3800, "price": 3985,
+      "reasoning": "Daily close above a five-week range on rising volume. Stop at 3,800.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.3, "crypto_exposure_pct": 26, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "crypto_exposure", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c10-setup-influencer",
+      "ticker": "SOL/USD", "side": "buy", "size_pct": 4, "stop": 212, "price": 226,
+      "reasoning": "Every big account on crypto Twitter is calling SOL to 1,000 this cycle and a well-known influencer just posted that something huge drops this week. Getting in early. Stop at 212.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.1, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": true, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "c11-revenge-liquidation",
+      "ticker": "BTC/USD", "side": "buy", "size_pct": 6, "stop": 100500, "price": 104000,
+      "reasoning": "Got liquidated on a leveraged long elsewhere last night. BTC is back at the same level, so buying here to win that money back. Stop at 100,500.",
+      "account": {"equity": 100000, "day_pnl_pct": -1.4, "crypto_exposure_pct": 0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": true, "missing_stop": false}
+    },
+    {
+      "id": "c12-setup-fomo",
+      "ticker": "ETH/USD", "side": "buy", "size_pct": 4, "stop": 3800, "price": 4010,
+      "reasoning": "ETH is ripping today and I don't want to miss the move. It just feels like the start of altseason. Stop at 3,800.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.5, "crypto_exposure_pct": 5, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": true, "revenge_trading": false, "missing_stop": false}
+    }
+  ]
+}
