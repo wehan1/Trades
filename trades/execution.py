@@ -63,7 +63,7 @@ def order_for(p: Proposal, facts: dict, price: float) -> tuple[dict | None, str]
 def _crypto_order(p: Proposal, facts: dict, price: float) -> tuple[dict | None, str]:
     equity = float(facts["equity"])
     held = float((facts.get("position") or {}).get("qty") or 0)
-    qty = math.floor(equity * float(p.size_pct) / 100 / price * 1e6) / 1e6
+    qty = math.floor(equity * float(p.size_pct) / 100 / price * 1e9) / 1e9
     if p.side == "sell":
         qty = min(qty, held)
     if qty * price < MIN_CRYPTO_NOTIONAL:

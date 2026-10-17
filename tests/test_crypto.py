@@ -108,7 +108,7 @@ def test_crypto_buy_places_stop_on_coins_received(settings):
     result = execution.run(approved(settings), replace(settings, paper_execution=True), broker)
     entry, stop = broker.orders
     assert entry["type"] == "market" and entry["time_in_force"] == "gtc" and "order_class" not in entry
-    assert entry["qty"] == "0.076923"                       # 8% of 100k at 104k
+    assert entry["qty"] == "0.076923076"                    # 8% of 100k at 104k, 9 decimals
     assert result["checks"][2] == {"name": "market_open", "passed": True, "detail": "crypto trades 24/7"}
     assert stop["type"] == "stop_limit" and stop["stop_price"] == "97500.0"
     assert stop["limit_price"] == "96037.5"                 # 1.5% buffer
@@ -121,7 +121,7 @@ def test_wide_stop_shrinks_size_to_risk_budget(settings):
     result = execution.run(approved(settings, size_pct=10, stop=88400, price=None), settings, broker)
     sizing = next(c for c in result["checks"] if c["name"] == "risk_sizing")
     assert "to 6.66%" in sizing["detail"]                   # 1% / 15% to stop
-    assert result["order"]["qty"] == "0.064038"
+    assert result["order"]["qty"] == "0.064038461"
 
 
 def test_unfilled_entry_leaves_stop_to_protect(settings):
@@ -198,3 +198,16 @@ def test_protect_uses_the_order_stamp_when_no_log_survived(settings):
     broker.filled_buys = lambda pair: [{"side": "buy", "status": "filled", "client_order_id": "trades-abc-s97500"}]
     action = protect.run(s, broker, [])[0]
     assert action["note"] == "no stop order: place one" and broker.orders[-1]["stop_price"] == "97500.0"
+
+
+def test_dust_left_after_an_exit_is_not_protected(settings):
+    # A real paper exit left 0.000000219 BTC behind; placing a stop for it was rejected (qty must be > 0).
+    s = replace(settings, paper_execution=True)
+    broker = CryptoBroker(positions={"BTC/USD": 0.000000219})
+    action = protect.ensure(broker, s, "BTC/USD", 79000.0)
+    assert action["note"].startswith("dust only") and broker.orders == []
+
+
+def test_quantities_keep_alpacas_nine_decimals():
+    assert protect.fmt_qty(0.000311219) == "0.000311219"
+    assert protect.fmt_qty(0.2) == "0.2"

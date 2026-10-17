@@ -21,7 +21,11 @@ def fmt_price(x: float) -> str:
 
 
 def fmt_qty(x: float) -> str:
-    return f"{math.floor(x * 1e6) / 1e6:.6f}".rstrip("0").rstrip(".")
+    """Alpaca keeps crypto quantities to 9 decimals; rounding coarser leaves dust behind."""
+    return f"{math.floor(x * 1e9 + 1e-6) / 1e9:.9f}".rstrip("0").rstrip(".")
+
+
+DUST_USD = 1.0      # positions worth less than this cannot be traded or protected
 
 
 def stop_order(pair: str, qty: float, stop: float, s: Settings) -> dict:
@@ -65,6 +69,10 @@ def ensure(broker, s: Settings, pair: str, stop: float | None, price: float | No
     action = {"pair": pair, "qty": qty, "stop": stop, "done": [], "note": ""}
     if qty <= 0:
         action["note"] = "no position"
+        return action
+    mark = float(position.get("current_price") or 0) or price or broker.latest_trade(pair)["price"]
+    if qty * mark < DUST_USD:
+        action["note"] = f"dust only (${qty * mark:.2f}); nothing to protect"
         return action
     if stop is None:
         action["note"] = "no recorded stop; protect this position by hand"
