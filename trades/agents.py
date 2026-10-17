@@ -64,8 +64,8 @@ def configure() -> dict:
         # network secret. Claude runs through OpenRouter instead, whose key the
         # proxy adds; the client only needs a placeholder to start.
         os.environ.setdefault("TRADINGAGENTS_LLM_PROVIDER", "openrouter")
-        os.environ.setdefault("TRADINGAGENTS_DEEP_THINK_LLM", "anthropic/claude-opus-5.5")
-        os.environ.setdefault("TRADINGAGENTS_QUICK_THINK_LLM", "anthropic/claude-sonnet-5.5")
+        os.environ.setdefault("TRADINGAGENTS_DEEP_THINK_LLM", "anthropic/claude-sonnet-5")
+        os.environ.setdefault("TRADINGAGENTS_QUICK_THINK_LLM", "anthropic/claude-sonnet-5")
         os.environ.setdefault("OPENROUTER_API_KEY", "set-by-network-secret")
     os.environ.setdefault("TRADINGAGENTS_LLM_PROVIDER", "anthropic")
     if os.environ["TRADINGAGENTS_LLM_PROVIDER"] == "anthropic":
