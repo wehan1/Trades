@@ -80,3 +80,16 @@ def test_jev_unavailable_fails_closed(settings):
     record = pipeline.check(proposal(), settings, ask=unavailable_jev)
     assert record["decision"] == "BLOCK"
     assert record["blocked_by"] == "Jev unavailable (HTTP 503)"
+
+
+def test_trim_is_judged_on_revenge_only(settings):
+    trim = proposal(side="sell", stop=None, account={"equity": 100000, "position": {"qty": 10, "market_value": 2400, "unrealized_pl_pct": 20}})
+    record = pipeline.check(trim, settings, ask=fixed_jev(missing_stop=0.96, setup_violation=0.69))
+    assert record["decision"] == "APPROVE" and record["jev"]["applied"] == ["revenge_trading"]
+    record = pipeline.check(trim, settings, ask=fixed_jev(revenge_trading=0.9))
+    assert record["decision"] == "BLOCK"
+
+
+def test_buys_are_judged_on_all_three(settings):
+    record = pipeline.check(proposal(), settings, ask=fixed_jev(missing_stop=0.6))
+    assert record["decision"] == "BLOCK" and len(record["jev"]["applied"]) == 3

@@ -37,7 +37,11 @@ def check(p: Proposal, s: Settings, cache: jev.Cache | None = None, ask=jev.ask)
         record["blocked_by"] = f"Jev unavailable ({answer.error})"
         return record
 
-    over = {q: v for q, v in answer.probabilities.items() if v >= s.block_threshold}
+    # A sell that shrinks a position needs no stop and no entry setup; only the
+    # revenge question applies to it. Jev still answers all three, for the record.
+    applies = tuple(jev.QUESTIONS) if guards.opens_risk(p) else ("revenge_trading",)
+    record["jev"]["applied"] = list(applies)
+    over = {q: v for q, v in answer.probabilities.items() if q in applies and v >= s.block_threshold}
     if over:
         worst = max(over, key=over.get)
         record["blocked_by"] = f"Jev: {worst} {over[worst]:.0%} >= {s.block_threshold:.0%}"

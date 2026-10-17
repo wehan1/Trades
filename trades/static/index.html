@@ -232,6 +232,7 @@ function renderDetail() {
   if (!r || !r.proposal) { $("#detail").innerHTML = `<p class="empty">${r ? `Rating ${esc(r.signal)}: no trade proposed. Report: ${esc(r.report)}` : "Select a proposal."}</p>`; return; }
   const p = r.proposal, th = status.rules.block_threshold;
   const probs = r.jev && r.jev.probabilities;
+  const applied = (q) => !r.jev.applied || r.jev.applied.includes(q);
   const short = p.reasoning.length > 320 ? p.reasoning.slice(0, 320) + "…" : p.reasoning;
   const checks = (list) => `<ul class="checks">${list.map((c) => `<li><span class="${c.passed ? "ok" : "no"}">${c.passed ? "pass" : "fail"}</span> ${esc(c.name)} — ${esc(c.detail)}</li>`).join("")}</ul>`;
   let html = `<div class="head"><h3>${esc(p.ticker)} · ${esc(p.source)}</h3>${r.decision ? `<span class="badge big-badge ${r.decision}">${r.decision === "APPROVE" ? "APPROVED" : "BLOCKED"}</span>` : ""}</div>
@@ -244,8 +245,8 @@ function renderDetail() {
   html += `<div class="section-label">Model judgment · Jev</div>`;
   if (probs) {
     html += `<div class="probs">${Object.entries(probs).map(([q, v]) => `
-      <div class="prob"><div class="lbl">${esc(LABELS[q] || q)}</div><div class="v ${v >= th ? "over" : ""}">${pct(v)}</div>
-      <div class="track"><div class="fill ${v >= th ? "over" : ""}" style="width:${v * 100}%"></div><div class="thresh" style="left:${th * 100}%"></div></div></div>`).join("")}</div>
+      <div class="prob" style="${applied(q) ? "" : "opacity:.45"}"><div class="lbl">${esc(LABELS[q] || q)}${applied(q) ? "" : " · not applied (reduces risk)"}</div><div class="v ${applied(q) && v >= th ? "over" : ""}">${pct(v)}</div>
+      <div class="track"><div class="fill ${applied(q) && v >= th ? "over" : ""}" style="width:${v * 100}%"></div><div class="thresh" style="left:${th * 100}%"></div></div></div>`).join("")}</div>
       <p class="note">${esc(r.jev.model || "")}${r.jev.cached ? " · cached" : ""}</p>`;
   } else if (r.jev) {
     html += `<p class="err">Unavailable: ${esc(r.jev.error)}</p>`;
