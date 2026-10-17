@@ -103,6 +103,10 @@ def load() -> Settings:
         "post-earnings drift after a reported surprise"
     )
     crypto_setups = os.environ.get("CRYPTO_ALLOWED_SETUPS") or (
+        "session opening-range breakout: a 15-minute close above the high of the session's first 30 minutes "
+        "and above the session VWAP, stop below that range's low;"
+        "session VWAP reclaim: after trading above the session VWAP, a 15-minute close back above it "
+        "following a close below, stop below the pullback's low;"
         "pullback to the rising 20- or 50-day average while price holds above its 200-day average;"
         "daily close breaking out of a range of at least two weeks on rising volume;"
         "flow or news thesis citing specific reported figures such as ETF net flows, "
