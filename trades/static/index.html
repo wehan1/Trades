@@ -213,7 +213,7 @@ function items() { return view === "recorded" ? recorded : (testRecords.length ?
 function renderFeed() {
   const list = items();
   if (!list.length) {
-    $("#feed").innerHTML = `<p class="empty">${view === "recorded" ? "No proposals yet. Run <code>trades run NVDA</code> or paste one below." : "No test ideas."}</p>`;
+    $("#feed").innerHTML = `<p class="empty">${view === "recorded" ? "No proposals yet. Run <code>trades run BTC/USD</code> or paste one below." : "No test ideas."}</p>`;
     return;
   }
   $("#feed").innerHTML = list.map((r, i) => {
