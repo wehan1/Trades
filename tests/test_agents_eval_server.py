@@ -90,4 +90,4 @@ def test_network_secrets_run_claude_through_openrouter(monkeypatch):
     monkeypatch.setattr(os, "environ", {**env, "NETWORK_SECRETS": "true"})
     cfg = agents.configure()
     assert (cfg["llm_provider"], cfg["deep_think_llm"], cfg["quick_think_llm"]) == (
-        "openrouter", "anthropic/claude-sonnet-5", "anthropic/claude-sonnet-5")
+        "openrouter", "anthropic/claude-sonnet-5.5", "anthropic/claude-haiku-5.5")
