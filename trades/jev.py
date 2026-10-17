@@ -107,13 +107,14 @@ class Cache:
 
 def ask(p: Proposal, s: Settings, cache: Cache | None = None, post=requests.post) -> JevResult:
     if not s.jev_configured:
-        return JevResult(None, error="no Jev key (set OPENROUTER_API_KEY or TYPESAFE_API_KEY)")
+        return JevResult(None, error="no Jev key (set OPENROUTER_API_KEY or TYPESAFE_API_KEY, or NETWORK_SECRETS=true)")
     body = {"model": s.jev_model, "state": state_for(p, s), "questions": QUESTIONS}
     key = hashlib.sha256(json.dumps([s.jev_url, body], sort_keys=True).encode()).hexdigest()
     if cache and (hit := cache.get(key)):
         return JevResult(hit["probabilities"], model=hit.get("model"), cached=True, usage=hit.get("usage"))
 
-    headers = {"Authorization": f"Bearer {s.jev_key}"}
+    # With network secrets the proxy adds the Authorization header itself.
+    headers = {"Authorization": f"Bearer {s.jev_key}"} if s.jev_key else {}
     failure, backoff = "no response", 1.0
     for attempt in range(_ATTEMPTS):
         if attempt:

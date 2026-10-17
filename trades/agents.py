@@ -58,6 +58,15 @@ def proposal_from_state(ticker: str, state: dict, signal: str, s: Settings,
 
 def configure() -> dict:
     """TradingAgents config, on Claude unless the environment says otherwise."""
+    network_secrets = os.environ.get("NETWORK_SECRETS", "").strip().lower() in ("true", "1", "yes", "on")
+    if network_secrets and not os.environ.get("ANTHROPIC_API_KEY"):
+        # api.anthropic.com bypasses the cloud proxy, so its key can't be a
+        # network secret. Claude runs through OpenRouter instead, whose key the
+        # proxy adds; the client only needs a placeholder to start.
+        os.environ.setdefault("TRADINGAGENTS_LLM_PROVIDER", "openrouter")
+        os.environ.setdefault("TRADINGAGENTS_DEEP_THINK_LLM", "anthropic/claude-opus-5.5")
+        os.environ.setdefault("TRADINGAGENTS_QUICK_THINK_LLM", "anthropic/claude-sonnet-5.5")
+        os.environ.setdefault("OPENROUTER_API_KEY", "set-by-network-secret")
     os.environ.setdefault("TRADINGAGENTS_LLM_PROVIDER", "anthropic")
     if os.environ["TRADINGAGENTS_LLM_PROVIDER"] == "anthropic":
         os.environ.setdefault("TRADINGAGENTS_DEEP_THINK_LLM", "claude-opus-5-5")

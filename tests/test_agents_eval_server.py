@@ -81,3 +81,13 @@ def test_server_check_records_and_never_executes(settings):
     assert client.get("/api/performance").json() == {"available": False, "reason": "no Alpaca keys"}
     assert client.get("/api/status").json()["paper_execution"] is False
     assert client.get("/").status_code == 200
+
+
+def test_network_secrets_run_claude_through_openrouter(monkeypatch):
+    import os
+    # configure() writes to the environment; give it a private copy.
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("ANTHROPIC_", "OPENROUTER_", "TRADINGAGENTS_"))}
+    monkeypatch.setattr(os, "environ", {**env, "NETWORK_SECRETS": "true"})
+    cfg = agents.configure()
+    assert (cfg["llm_provider"], cfg["deep_think_llm"], cfg["quick_think_llm"]) == (
+        "openrouter", "anthropic/claude-opus-5.5", "anthropic/claude-sonnet-5.5")

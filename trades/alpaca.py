@@ -24,12 +24,13 @@ class AlpacaError(Exception):
 class AlpacaPaper:
     def __init__(self, s: Settings, session: requests.Session | None = None):
         if not s.alpaca_configured:
-            raise AlpacaError("no Alpaca keys (set ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY)")
+            raise AlpacaError("no Alpaca keys (set ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY, or NETWORK_SECRETS=true)")
         self.http = session or requests.Session()
-        self.http.headers.update({
-            "APCA-API-KEY-ID": s.alpaca_key,
-            "APCA-API-SECRET-KEY": s.alpaca_secret,
-        })
+        if s.alpaca_key:    # with network secrets the proxy adds these headers itself
+            self.http.headers.update({
+                "APCA-API-KEY-ID": s.alpaca_key,
+                "APCA-API-SECRET-KEY": s.alpaca_secret,
+            })
 
     def _get(self, base: str, path: str, **params):
         response = self.http.get(base + path, params=params or None, timeout=20)

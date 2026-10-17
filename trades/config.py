@@ -60,14 +60,17 @@ class Settings:
     jev_model: str
     alpaca_key: str | None
     alpaca_secret: str | None
+    # Keys stored as the cloud environment's network secrets: the session never
+    # sees them; the egress proxy adds them to requests for their hosts.
+    network_secrets: bool = False
 
     @property
     def jev_configured(self) -> bool:
-        return bool(self.jev_url and self.jev_key)
+        return bool(self.jev_url and (self.jev_key or self.network_secrets))
 
     @property
     def alpaca_configured(self) -> bool:
-        return bool(self.alpaca_key and self.alpaca_secret)
+        return bool(self.alpaca_key and self.alpaca_secret) or self.network_secrets
 
     def setups_for(self, ticker: str) -> tuple[str, ...]:
         from trades.assets import is_crypto
@@ -88,6 +91,8 @@ def load() -> Settings:
         jev_url, jev_key, jev_model = OPENROUTER_JEV_URL, openrouter, model or "jev-1.13"
     elif typesafe:
         jev_url, jev_key, jev_model = TYPESAFE_JEV_URL, typesafe, model or "jev-latest"
+    elif _bool("NETWORK_SECRETS", False):
+        jev_url, jev_key, jev_model = OPENROUTER_JEV_URL, None, model or "jev-1.13"
     else:
         jev_url, jev_key, jev_model = None, None, model or "jev-1.13"
 
@@ -127,4 +132,5 @@ def load() -> Settings:
         jev_model=jev_model,
         alpaca_key=os.environ.get("ALPACA_API_KEY_ID") or None,
         alpaca_secret=os.environ.get("ALPACA_API_SECRET_KEY") or None,
+        network_secrets=_bool("NETWORK_SECRETS", False),
     )

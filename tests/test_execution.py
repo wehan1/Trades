@@ -95,3 +95,21 @@ def test_broker_error_recorded(settings):
             raise AlpacaError("HTTP 403")
     result = execution.run(approved(settings), settings, Failing())
     assert result["note"] == "broker error" and result["checks"][-1]["detail"] == "HTTP 403"
+
+
+def test_alpaca_with_network_secrets_sends_no_key_headers(settings):
+    from trades.alpaca import AlpacaPaper
+    broker = AlpacaPaper(replace(settings, alpaca_key=None, alpaca_secret=None, network_secrets=True))
+    assert "APCA-API-KEY-ID" not in broker.http.headers
+
+
+def test_config_network_secrets(monkeypatch):
+    from trades import config
+    for key in ("OPENROUTER_API_KEY", "TYPESAFE_API_KEY", "ALPACA_API_KEY_ID", "ALPACA_API_SECRET_KEY"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("NETWORK_SECRETS", "true")
+    s = config.load()
+    assert s.jev_configured and s.alpaca_configured and s.jev_url == config.OPENROUTER_JEV_URL
+    monkeypatch.setenv("NETWORK_SECRETS", "false")
+    s = config.load()
+    assert not s.jev_configured and not s.alpaca_configured

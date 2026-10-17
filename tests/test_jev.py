@@ -86,3 +86,15 @@ def test_cache_serves_repeat_requests(settings, tmp_path):
     second = jev.ask(P, settings, jev.Cache(tmp_path / "cache.json"), post=post)
     assert len(calls) == 1 and not first.cached and second.cached
     assert second.probabilities == first.probabilities
+
+
+def test_network_secrets_send_no_key(settings):
+    from dataclasses import replace
+    s = replace(settings, jev_key=None, network_secrets=True)
+    calls = []
+
+    def post(url, json, headers, timeout):
+        calls.append(headers)
+        return Response(200, answers(setup_violation=0.1, revenge_trading=0.1, missing_stop=0.1))
+    assert jev.ask(P, s, post=post).probabilities is not None
+    assert calls == [{}]
