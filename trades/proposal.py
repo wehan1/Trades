@@ -6,6 +6,8 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 
+from trades.assets import crypto_pair, is_crypto
+
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -42,7 +44,7 @@ class Proposal:
         values.setdefault("size_pct", None)
         values.setdefault("reasoning", "")
         if isinstance(values["ticker"], str):
-            values["ticker"] = values["ticker"].strip().upper()
+            values["ticker"] = crypto_pair(values["ticker"]) or values["ticker"].strip().upper()
         if isinstance(values["side"], str):
             values["side"] = values["side"].strip().lower()
         for key in ("account", "calendar"):
@@ -52,6 +54,10 @@ class Proposal:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+    @property
+    def asset_class(self) -> str:
+        return "crypto" if is_crypto(self.ticker) else "stock"
 
     def trade_date(self) -> str:
         return str(self.calendar.get("date") or self.as_of[:10])

@@ -77,14 +77,14 @@ class JevResult:
 def state_for(p: Proposal, s: Settings) -> dict[str, str]:
     """What Jev reads. Values are text, the form TradingAgents sends."""
     proposal = {
-        "ticker": p.ticker, "side": p.side, "size": f"{p.size_pct}% of account",
+        "ticker": p.ticker, "asset_class": p.asset_class, "side": p.side, "size": f"{p.size_pct}% of account",
         "stop": p.stop, "invalidation": p.invalidation or None, "reasoning": p.reasoning,
     }
     return {
         "proposal": json.dumps(proposal, ensure_ascii=False),
         "account": json.dumps(p.account or "not provided", ensure_ascii=False),
         "calendar": json.dumps(p.calendar or {"date": p.trade_date()}, ensure_ascii=False),
-        "allowed_setups": "; ".join(s.allowed_setups),
+        "allowed_setups": "; ".join(s.setups_for(p.ticker)),
     }
 
 

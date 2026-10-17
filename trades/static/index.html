@@ -106,10 +106,10 @@ textarea { width: 100%; min-height: 220px; font: 13px/1.4 ui-monospace, Menlo, m
   <section class="card">
     <h2>How a proposal flows</h2>
     <div class="flow">
-      <div class="node input"><small>Input</small><b>Agent proposal</b><span>ticker, side, size, stop, reasoning</span></div>
+      <div class="node input"><small>Input</small><b>Agent proposal</b><span>stock or crypto pair, side, size, stop, reasoning</span></div>
       <div class="node input"><small>Input</small><b>Account &amp; calendar</b><span>equity, P&amp;L, position, events</span></div>
       <div class="arrow">→</div>
-      <div class="node code"><small>Code</small><b>Numeric guards</b><span>schema · size · loser · loss limit · events</span></div>
+      <div class="node code"><small>Code</small><b>Numeric guards</b><span>schema · universe · size · crypto exposure · stop · risk per trade · loser · loss limit · events</span></div>
       <div class="arrow">→</div>
       <div class="node jev"><small>Classifier</small><b>Jev</b><span>does it break a rule?</span></div>
       <div class="arrow">→</div>
@@ -118,7 +118,7 @@ textarea { width: 100%; min-height: 220px; font: 13px/1.4 ui-monospace, Menlo, m
       <div class="arrow">→</div>
       <div class="node code"><small>Code</small><b>Any ≥ threshold?</b><span>yes → block</span></div>
       <div class="arrow">→</div>
-      <div class="node system"><small>System</small><b>Execution checks</b><span>freshness · live guards · size · paper order</span></div>
+      <div class="node system"><small>System</small><b>Execution checks</b><span>freshness · live guards · risk sizing · paper order · crypto stop-limit</span></div>
     </div>
     <p class="legend"><em>BLOCK</em> on any failed guard, any Jev probability at or over the threshold, or Jev not answering. Approval is not an order: orders go out only from <code>trades run</code> with PAPER_EXECUTION on.</p>
   </section>
@@ -132,7 +132,7 @@ textarea { width: 100%; min-height: 220px; font: 13px/1.4 ui-monospace, Menlo, m
     <section class="card">
       <h2>Paper account</h2>
       <div id="perfBody" class="note">Loading…</div>
-      <p class="note">From Alpaca's paper account. Paper fills are simulated; results here are not live performance.</p>
+      <p class="note">From Alpaca's paper account. Paper fills are simulated; results here are not live performance. A crypto desk that can't beat holding BTC isn't adding anything.</p>
     </section>
   </div>
 
@@ -176,6 +176,8 @@ function renderPills() {
   p.push(`<span class="pill">Block at ≥ ${pct(status.rules.block_threshold)}</span>`);
   p.push(`<span class="pill">Max position ${status.rules.max_position_pct}%</span>`);
   p.push(`<span class="pill">Daily loss limit ${status.rules.max_daily_loss_pct}%</span>`);
+  p.push(`<span class="pill">Risk per trade ${status.rules.max_risk_per_trade_pct}%</span>`);
+  p.push(`<span class="pill">Crypto: ${esc(status.rules.crypto_universe.join(", "))} · max ${status.rules.max_crypto_position_pct}% each, ${status.rules.max_crypto_exposure_pct}% total</span>`);
   $("#pills").innerHTML = p.join("");
 }
 
@@ -186,6 +188,7 @@ function renderEval(ev) {
     <div class="stat"><span>Rule violations caught</span><span class="big">${s.caught} / ${s.rule_breaking}</span></div>
     <div class="stat"><span>False blocks on valid ideas</span><span class="big">${s.false_blocks} / ${s.valid}</span></div>
     ${s.unavailable ? `<p class="err">${s.unavailable} of ${s.total} ideas unscored: Jev did not answer.</p>` : ""}
+    <p class="note">${Object.entries(ev.by_asset || {}).map(([k, v]) => `${esc(k)}: caught ${v.caught}/${v.rule_breaking}, false blocks ${v.false_blocks}/${v.valid}`).join(" · ")}</p>
     <p class="note">${esc(ev.jev_model)} · ${esc(ev.evaluated_at)}</p>`;
 }
 
@@ -201,7 +204,8 @@ function renderPerf(perf) {
   }
   $("#perfBody").innerHTML = `
     <div class="stat"><span>Equity</span><span class="big">$${Number(perf.account.equity).toLocaleString()}</span></div>
-    ${ret || '<p class="note">Not enough history for a return yet.</p>'}`;
+    ${ret || '<p class="note">Not enough history for a return yet.</p>'}
+    ${perf.benchmark && perf.benchmark.available ? `<div class="stat"><span>BTC buy &amp; hold since ${esc(perf.benchmark.start)}</span><span class="big">${(perf.benchmark.return * 100).toFixed(2)}%</span></div>` : ""}`;
 }
 
 function items() { return view === "recorded" ? recorded : (testRecords.length ? testRecords : testIdeas.map((p) => ({ proposal: p, decision: null }))); }
@@ -251,6 +255,7 @@ function renderDetail() {
   if (r.decision) html += `<div class="section-label">Code decision</div><p>${r.decision === "APPROVE" ? "All checks passed" : esc(r.blocked_by)}</p>`;
   if (r.execution) {
     html += `<div class="section-label">Execution checks</div>${checks(r.execution.checks)}<p class="foot">${esc(r.execution.note)}${r.execution.submitted ? " · order " + esc(r.execution.response && r.execution.response.id) : ""}</p>`;
+    if (r.execution.stop) html += `<p class="foot">Stop: ${esc(r.execution.stop.note)}</p>`;
   }
   $("#detail").innerHTML = html;
 }
@@ -280,9 +285,9 @@ $("#evalBtn").onclick = async () => {
 };
 
 $("#paste").value = JSON.stringify({
-  ticker: "NVDA", side: "buy", size_pct: 4, stop: 224, price: 237.11,
-  reasoning: "Pullback within an established uptrend: 5% above the rising 20-day mean after five higher closes. Stop below the 20-day mean.",
-  account: { equity: 100000, day_pnl_pct: 0.2, recent_trades: [] },
+  ticker: "BTC/USD", side: "buy", size_pct: 8, stop: 97500, price: 104000,
+  reasoning: "Pullback to the rising 50-day average while price holds above its 200-day average. Stop below the 50-day and the last swing low.",
+  account: { equity: 100000, day_pnl_pct: 0.2, crypto_exposure_pct: 0, recent_trades: [] },
   calendar: { date: new Date().toISOString().slice(0, 10), events: [] }
 }, null, 2);
 

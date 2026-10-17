@@ -40,8 +40,9 @@ def test_hold_and_review_are_no_trade(settings):
 
 def test_test_set_labels():
     ideas = evaluate.load_ideas()
-    assert len(ideas) == 20
-    assert sum(evaluate.rule_breaking(p.label) for p in ideas) == 12
+    assert len(ideas) == 32
+    assert sum(evaluate.rule_breaking(p.label) for p in ideas) == 19
+    assert sum(p.asset_class == "crypto" for p in ideas) == 12
 
 
 def test_evaluation_with_perfect_judge(settings):
@@ -51,14 +52,20 @@ def test_evaluation_with_perfect_judge(settings):
         from trades.jev import JevResult
         return JevResult({q: 0.9 if labels[p.id][q] else 0.1 for q in evaluate.JEV_QUESTIONS})
 
-    s = evaluate.run(settings, ask=oracle)["summary"]
-    assert (s["caught"], s["rule_breaking"], s["false_blocks"], s["valid"], s["unavailable"]) == (12, 12, 0, 8, 0)
+    result = evaluate.run(settings, ask=oracle)
+    s = result["summary"]
+    assert (s["caught"], s["rule_breaking"], s["false_blocks"], s["valid"], s["unavailable"]) == (19, 19, 0, 13, 0)
+    crypto = result["by_asset"]["crypto"]
+    assert (crypto["caught"], crypto["rule_breaking"], crypto["false_blocks"], crypto["valid"]) == (7, 7, 0, 5)
+    for r in result["records"]:            # each numeric label is caught by the rule it names
+        if guard := r["proposal"]["label"]["numeric_guard"]:
+            assert r["blocked_by"] == f"numeric guard: {guard}"
 
 
 def test_unanswered_ideas_are_not_counted_as_caught(settings):
     s = evaluate.run(settings, ask=unavailable_jev)["summary"]
-    assert s["unavailable"] == 17           # 3 ideas stop at a numeric guard first
-    assert s["caught"] == 3 and s["rule_breaking"] == 3
+    assert s["unavailable"] == 25           # 7 ideas stop at a numeric guard first
+    assert s["caught"] == 7 and s["rule_breaking"] == 7
 
 
 def test_server_check_records_and_never_executes(settings):

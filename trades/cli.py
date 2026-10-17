@@ -5,10 +5,11 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from datetime import date
+from datetime import datetime, timezone
 
-from trades import agents, config, evaluate, execution, jev, pipeline, store
+from trades import agents, config, evaluate, execution, jev, pipeline, protect, store
 from trades.alpaca import AlpacaError, AlpacaPaper
+from trades.assets import crypto_pair
 from trades.proposal import Proposal
 
 
@@ -37,11 +38,12 @@ def cmd_run(args, s):
     """Agent desk -> guardrail -> execution checks -> paper order (if enabled)."""
     cache = jev.Cache(s.data_dir / "jev_cache.json")
     broker = _broker(s)
-    for ticker in args.tickers:
+    for raw in args.tickers:
+        ticker = crypto_pair(raw) or raw.upper()
         account = {}
         if broker:
             try:
-                account = broker.account_facts(ticker.upper())
+                account = broker.account_facts(ticker)
             except AlpacaError as exc:
                 print(f"  account facts unavailable: {exc}")
         print(f"[{ticker}] running the agent desk for {args.date} (this takes minutes)...")
@@ -76,6 +78,18 @@ def cmd_evaluate(args, s):
         print(f"{summary['unavailable']} ideas could not be scored: Jev did not answer.")
 
 
+def cmd_protect(args, s):
+    """Make sure every crypto position has its stop. Run hourly."""
+    broker = _broker(s)
+    if broker is None:
+        return
+    for action in protect.run(s, broker, store.load(s.data_dir)):
+        done = f"  (orders: {', '.join(action['done'])})" if action["done"] else ""
+        print(f"{action['pair']}: {action['note']}{done}")
+    if not s.paper_execution:
+        print("PAPER_EXECUTION is off: nothing was changed.")
+
+
 def cmd_performance(args, s):
     try:
         broker = AlpacaPaper(s)
@@ -97,9 +111,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="trades")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p = sub.add_parser("run", help="run the agent desk on tickers, check, and paper-trade if enabled")
+    p = sub.add_parser("run", help="run the agent desk on tickers or pairs (BTC/USD), check, and paper-trade if enabled")
     p.add_argument("tickers", nargs="+")
-    p.add_argument("--date", default=date.today().isoformat())
+    p.add_argument("--date", default=datetime.now(timezone.utc).date().isoformat(),
+                   help="analysis date, YYYY-MM-DD (default: today in UTC, crypto's day)")
     p.set_defaults(func=cmd_run)
 
     p = sub.add_parser("check", help="check a proposal JSON file ('-' for stdin); never executes")
@@ -107,6 +122,7 @@ def main(argv=None):
     p.set_defaults(func=cmd_check)
 
     sub.add_parser("evaluate", help="score the guardrail on the labeled test ideas").set_defaults(func=cmd_evaluate)
+    sub.add_parser("protect", help="keep every crypto position under its stop (run hourly)").set_defaults(func=cmd_protect)
     sub.add_parser("performance", help="paper account equity").set_defaults(func=cmd_performance)
 
     p = sub.add_parser("serve", help="start the dashboard")

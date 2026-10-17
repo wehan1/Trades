@@ -6,10 +6,11 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass
 
+from trades.assets import is_crypto
 from trades.config import Settings
 from trades.proposal import Proposal
 
-_TICKER = re.compile(r"^[A-Z][A-Z0-9.\-]{0,9}$")
+_TICKER = re.compile(r"^[A-Z][A-Z0-9.\-]{0,9}$|^[A-Z0-9]{2,10}/(USD|USDT|USDC)$")
 
 
 @dataclass
@@ -61,13 +62,22 @@ def opens_risk(p: Proposal) -> bool:
     return float(_position(p).get("qty") or 0) <= 0
 
 
+def universe(p: Proposal, s: Settings) -> GuardResult:
+    if not is_crypto(p.ticker):
+        return GuardResult("universe", True, "stock")
+    allowed = p.ticker in s.crypto_universe
+    return GuardResult("universe", allowed, f"{p.ticker} {'is' if allowed else 'is not'} in CRYPTO_UNIVERSE "
+                                            f"({', '.join(s.crypto_universe)})")
+
+
 def no_short(p: Proposal, s: Settings) -> GuardResult:
-    if p.side != "sell" or s.allow_short:
+    # Alpaca does not short crypto, whatever ALLOW_SHORT says.
+    if p.side != "sell" or (s.allow_short and not is_crypto(p.ticker)):
         return GuardResult("no_short", True, "not a short sale" if p.side != "sell" else "shorting allowed")
     held = float(_position(p).get("qty") or 0)
     if held <= 0:
         return GuardResult("no_short", False, "sell with no long position would open a short; ALLOW_SHORT is off")
-    return GuardResult("no_short", True, f"sells from a long position of {held:g} shares")
+    return GuardResult("no_short", True, f"sells from a long position of {held:g}")
 
 
 def position_size(p: Proposal, s: Settings) -> GuardResult:
@@ -78,8 +88,44 @@ def position_size(p: Proposal, s: Settings) -> GuardResult:
     held_value = abs(_number(_position(p).get("market_value")) or 0)
     held_pct = held_value / equity * 100 if equity else 0.0
     total = held_pct + size
-    detail = f"{size:g}% new + {held_pct:.1f}% held = {total:.1f}% (limit {s.max_position_pct:g}%)"
-    return GuardResult("position_size", total <= s.max_position_pct + 1e-9, detail)
+    limit = s.max_crypto_position_pct if is_crypto(p.ticker) else s.max_position_pct
+    detail = f"{size:g}% new + {held_pct:.1f}% held = {total:.1f}% (limit {limit:g}%)"
+    return GuardResult("position_size", total <= limit + 1e-9, detail)
+
+
+def crypto_exposure(p: Proposal, s: Settings) -> GuardResult:
+    """Coins move together, so the sum of all crypto positions is capped too."""
+    if not is_crypto(p.ticker) or not opens_risk(p):
+        return GuardResult("crypto_exposure", True, "not new crypto risk")
+    held = _number(p.account.get("crypto_exposure_pct"))
+    if held is None:
+        return GuardResult("crypto_exposure", True, "crypto exposure not given; checked again against the live account before any order")
+    total = held + float(p.size_pct)
+    return GuardResult("crypto_exposure", total <= s.max_crypto_exposure_pct + 1e-9,
+                       f"{held:.1f}% in crypto + {float(p.size_pct):g}% new = {total:.1f}% "
+                       f"(limit {s.max_crypto_exposure_pct:g}%)")
+
+
+def stop_required(p: Proposal, s: Settings) -> GuardResult:
+    """Crypto trades around the clock, so the stop has to be a price code can
+    place as an order; a prose invalidation nobody is awake to act on is none."""
+    if not is_crypto(p.ticker) or not opens_risk(p):
+        return GuardResult("stop_required", True, "stock: a prose invalidation is judged by Jev" if not is_crypto(p.ticker) else "reduces risk")
+    stop = _number(p.stop)
+    return GuardResult("stop_required", stop is not None, f"stop {stop:g}" if stop is not None else "crypto entries need a numeric stop price")
+
+
+def risk_per_trade(p: Proposal, s: Settings) -> GuardResult:
+    """What the account loses if the stop is hit: size x distance to the stop."""
+    stop, price = _number(p.stop), _number(p.price)
+    if not opens_risk(p) or stop is None:
+        return GuardResult("risk_per_trade", True, "no stop to measure risk from" if opens_risk(p) else "reduces risk")
+    if price is None:
+        return GuardResult("risk_per_trade", True, "no price given; checked again at the live price before any order")
+    risk = float(p.size_pct) * abs(price - stop) / price
+    return GuardResult("risk_per_trade", risk <= s.max_risk_per_trade_pct + 1e-9,
+                       f"{float(p.size_pct):g}% x {abs(price - stop) / price:.1%} to stop = {risk:.2f}% of account "
+                       f"(limit {s.max_risk_per_trade_pct:g}%)")
 
 
 def adding_to_loser(p: Proposal, s: Settings) -> GuardResult:
@@ -121,7 +167,8 @@ def event_restriction(p: Proposal, s: Settings) -> GuardResult:
     return GuardResult("event_restriction", True, f"no restriction on {date}")
 
 
-RULES = (no_short, position_size, adding_to_loser, daily_loss, stop_side, event_restriction)
+RULES = (universe, no_short, position_size, crypto_exposure, adding_to_loser, daily_loss,
+         stop_required, stop_side, risk_per_trade, event_restriction)
 
 
 def run(p: Proposal, s: Settings) -> list[GuardResult]:

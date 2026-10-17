@@ -14,12 +14,13 @@ from trades import jev, pipeline
 from trades.config import ROOT, Settings
 from trades.proposal import Proposal, now_iso
 
-TEST_IDEAS = ROOT / "data" / "test_ideas.json"
+TEST_IDEAS = (ROOT / "data" / "test_ideas.json", ROOT / "data" / "test_ideas_crypto.json")
 JEV_QUESTIONS = tuple(jev.QUESTIONS)
 
 
-def load_ideas(path: Path = TEST_IDEAS) -> list[Proposal]:
-    return [Proposal.from_dict({**raw, "source": "test"}) for raw in json.loads(path.read_text())["ideas"]]
+def load_ideas(paths: tuple[Path, ...] = TEST_IDEAS) -> list[Proposal]:
+    return [Proposal.from_dict({**raw, "source": "test"})
+            for path in paths for raw in json.loads(path.read_text())["ideas"]]
 
 
 def rule_breaking(label: dict) -> bool:
@@ -54,9 +55,16 @@ def score(records: list[dict]) -> dict:
     }
 
 
-def run(s: Settings, cache: jev.Cache | None = None, ask=jev.ask, path: Path = TEST_IDEAS) -> dict:
-    records = [pipeline.check(p, s, cache, ask) for p in load_ideas(path)]
-    result = {"evaluated_at": now_iso(), "jev_model": s.jev_model, "summary": score(records), "records": records}
+def run(s: Settings, cache: jev.Cache | None = None, ask=jev.ask, paths: tuple[Path, ...] = TEST_IDEAS) -> dict:
+    ideas = load_ideas(paths)
+    records = [pipeline.check(p, s, cache, ask) for p in ideas]
+    by_asset = {}
+    for asset in ("stock", "crypto"):
+        subset = [r for r, p in zip(records, ideas) if p.asset_class == asset]
+        if subset:
+            by_asset[asset] = score(subset)
+    result = {"evaluated_at": now_iso(), "jev_model": s.jev_model, "summary": score(records),
+              "by_asset": by_asset, "records": records}
     s.data_dir.mkdir(parents=True, exist_ok=True)
     (s.data_dir / "evaluation.json").write_text(json.dumps(result, indent=1))
     return result

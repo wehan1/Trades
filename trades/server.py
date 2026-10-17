@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -35,6 +36,11 @@ def create_app(settings: config.Settings | None = None, ask=jev.ask, broker_fact
                 "allow_short": s.allow_short, "block_threshold": s.block_threshold,
                 "proposal_max_age_min": s.proposal_max_age_min,
                 "allowed_setups": list(s.allowed_setups),
+                "max_crypto_position_pct": s.max_crypto_position_pct,
+                "max_crypto_exposure_pct": s.max_crypto_exposure_pct,
+                "max_risk_per_trade_pct": s.max_risk_per_trade_pct,
+                "crypto_universe": list(s.crypto_universe),
+                "crypto_allowed_setups": list(s.crypto_allowed_setups),
                 "event_restrictions": s.restrictions(),
             },
         }
@@ -76,7 +82,22 @@ def create_app(settings: config.Settings | None = None, ask=jev.ask, broker_fact
         return {"available": True, "account": {
                     "equity": account.get("equity"), "last_equity": account.get("last_equity"),
                     "cash": account.get("cash"), "status": account.get("status")},
-                "history": history}
+                "history": history, "benchmark": _btc_benchmark(broker, history)}
+
+    def _btc_benchmark(broker, history: dict) -> dict:
+        """Buying BTC and holding it over the same days: the bar a crypto desk has to clear."""
+        stamps = [t for t, e in zip(history.get("timestamp") or [], history.get("equity") or []) if e]
+        if not stamps:
+            return {"available": False, "reason": "no account history yet"}
+        start = datetime.fromtimestamp(stamps[0], timezone.utc).strftime("%Y-%m-%d")
+        try:
+            closes = broker.daily_closes("BTC/USD", start)
+        except Exception as exc:
+            return {"available": False, "reason": f"{type(exc).__name__}: {exc}"}
+        if len(closes) < 2:
+            return {"available": False, "reason": "not enough BTC history"}
+        return {"available": True, "symbol": "BTC/USD", "start": start,
+                "return": closes[-1][1] / closes[0][1] - 1}
 
     return app
 

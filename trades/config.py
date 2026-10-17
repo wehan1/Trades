@@ -49,6 +49,12 @@ class Settings:
     proposal_max_age_min: float
     paper_execution: bool
     allowed_setups: tuple[str, ...]
+    max_crypto_position_pct: float
+    max_crypto_exposure_pct: float
+    max_risk_per_trade_pct: float
+    crypto_universe: tuple[str, ...]
+    crypto_allowed_setups: tuple[str, ...]
+    crypto_stop_limit_buffer_pct: float
     jev_url: str | None
     jev_key: str | None
     jev_model: str
@@ -62,6 +68,10 @@ class Settings:
     @property
     def alpaca_configured(self) -> bool:
         return bool(self.alpaca_key and self.alpaca_secret)
+
+    def setups_for(self, ticker: str) -> tuple[str, ...]:
+        from trades.assets import is_crypto
+        return self.crypto_allowed_setups if is_crypto(ticker) else self.allowed_setups
 
     def restrictions(self) -> list[dict]:
         try:
@@ -87,6 +97,13 @@ def load() -> Settings:
         "fundamental or news thesis citing specific reported figures or filings;"
         "post-earnings drift after a reported surprise"
     )
+    crypto_setups = os.environ.get("CRYPTO_ALLOWED_SETUPS") or (
+        "pullback to the rising 20- or 50-day average while price holds above its 200-day average;"
+        "daily close breaking out of a range of at least two weeks on rising volume;"
+        "flow or news thesis citing specific reported figures such as ETF net flows, "
+        "exchange reserves or a dated protocol upgrade"
+    )
+    universe = os.environ.get("CRYPTO_UNIVERSE") or "BTC/USD,ETH/USD,SOL/USD"
     data_dir = Path(os.environ.get("TRADES_DATA_DIR") or ROOT / "data")
     return Settings(
         data_dir=data_dir,
@@ -99,6 +116,12 @@ def load() -> Settings:
         proposal_max_age_min=_float("PROPOSAL_MAX_AGE_MIN", 60.0),
         paper_execution=_bool("PAPER_EXECUTION", False),
         allowed_setups=tuple(s.strip() for s in setups.split(";") if s.strip()),
+        max_crypto_position_pct=_float("MAX_CRYPTO_POSITION_PCT", 10.0),
+        max_crypto_exposure_pct=_float("MAX_CRYPTO_EXPOSURE_PCT", 30.0),
+        max_risk_per_trade_pct=_float("MAX_RISK_PER_TRADE_PCT", 1.0),
+        crypto_universe=tuple(u.strip().upper() for u in universe.split(",") if u.strip()),
+        crypto_allowed_setups=tuple(s.strip() for s in crypto_setups.split(";") if s.strip()),
+        crypto_stop_limit_buffer_pct=_float("CRYPTO_STOP_LIMIT_BUFFER_PCT", 1.5),
         jev_url=jev_url,
         jev_key=jev_key,
         jev_model=jev_model,
