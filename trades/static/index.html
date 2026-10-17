@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Trade Check</title>
+<style>
+:root {
+  --bg: #f4f8f8; --surface: #ffffff; --ink: #14262b; --muted: #5b6e73; --line: #d9e4e5;
+  --accent: #0f7a6c; --accent-soft: #e3f3f0; --code: #1f3d47; --code-ink: #ffffff;
+  --block: #9a4b14; --block-soft: #fdf1e6; --system: #e8eef8; --bar: #e6eeee;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1719; --surface: #172326; --ink: #e4eeef; --muted: #93a7ab; --line: #2a3a3e;
+    --accent: #3cc2ad; --accent-soft: #163a35; --code: #2a4b55; --code-ink: #f1f7f8;
+    --block: #f0a46a; --block-soft: #3a2618; --system: #1d2a3b; --bar: #24353a;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1719; --surface: #172326; --ink: #e4eeef; --muted: #93a7ab; --line: #2a3a3e;
+  --accent: #3cc2ad; --accent-soft: #163a35; --code: #2a4b55; --code-ink: #f1f7f8;
+  --block: #f0a46a; --block-soft: #3a2618; --system: #1d2a3b; --bar: #24353a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 30px; margin: 0 0 4px; letter-spacing: -0.02em; }
+h2 { font-size: 18px; margin: 0 0 12px; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.pill { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.pill.on { color: var(--accent); border-color: var(--accent); }
+.pill.off { color: var(--block); border-color: var(--block); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+.node { border-radius: 10px; padding: 10px 12px; min-width: 130px; flex: 1 1 130px; border: 1px solid var(--line); }
+.node small { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+.node b { display: block; }
+.node span { font-size: 12px; opacity: .85; }
+.node.input { background: var(--surface); }
+.node.code { background: var(--code); color: var(--code-ink); border-color: var(--code); }
+.node.jev { background: var(--accent); color: #fff; border-color: var(--accent); }
+.node.outs { background: var(--accent-soft); flex: 2 1 220px; }
+.node.outs ul { margin: 4px 0 0; padding-left: 16px; font-size: 13px; }
+.node.system { background: var(--system); }
+.arrow { align-self: center; color: var(--muted); }
+.legend { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.legend em { color: var(--block); font-style: normal; font-weight: 600; }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
+.stat { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.big { font-size: 34px; font-weight: 650; color: var(--accent); }
+.note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+button.ghost.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .6; cursor: wait; }
+
+.workspace { display: grid; grid-template-columns: minmax(240px, 340px) 1fr; gap: 16px; }
+@media (max-width: 760px) { .workspace { grid-template-columns: 1fr; } }
+.tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.feed { max-height: 560px; overflow-y: auto; margin: 0 -18px -18px; border-top: 1px solid var(--line); }
+.item { padding: 12px 18px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.item:hover, .item.sel { background: var(--accent-soft); }
+.item .row { display: flex; justify-content: space-between; gap: 8px; }
+.item .tk { font-weight: 700; font-size: 17px; }
+.item .meta { font-size: 12px; color: var(--muted); }
+.badge { font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
+.badge.BLOCK { color: var(--block); }
+.badge.big-badge { padding: 4px 12px; border-radius: 999px; background: var(--accent-soft); font-size: 12px; }
+.badge.big-badge.BLOCK { background: var(--block-soft); }
+.empty { color: var(--muted); padding: 18px; }
+
+.detail h3 { margin: 0; font-size: 20px; }
+.detail .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 12px; }
+.kv { color: var(--muted); font-size: 14px; }
+.kv b { color: var(--ink); }
+.reason { white-space: pre-wrap; margin: 10px 0; overflow-wrap: anywhere; }
+details summary { cursor: pointer; color: var(--accent); margin: 8px 0; }
+.section-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
+.probs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.prob .v { font-size: 26px; font-weight: 650; color: var(--accent); }
+.prob .v.over { color: var(--block); }
+.prob .lbl { font-size: 13px; color: var(--muted); }
+.track { height: 5px; background: var(--bar); border-radius: 3px; position: relative; }
+.fill { height: 5px; background: var(--accent); border-radius: 3px; }
+.fill.over { background: var(--block); }
+.thresh { position: absolute; top: -3px; width: 2px; height: 11px; background: var(--muted); }
+.checks { list-style: none; padding: 0; margin: 0; font-size: 14px; }
+.checks li { padding: 4px 0; border-bottom: 1px dashed var(--line); overflow-wrap: anywhere; }
+.ok { color: var(--accent); font-weight: 600; } .no { color: var(--block); font-weight: 600; }
+.foot { margin-top: 14px; font-size: 13px; color: var(--muted); }
+textarea { width: 100%; min-height: 220px; font: 13px/1.4 ui-monospace, Menlo, monospace; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.err { color: var(--block); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Agent trade check</h1>
+  <p class="sub">TradingAgents writes a proposal. Code rules and Jev check it before anything reaches Alpaca paper trading.</p>
+  <div class="pills" id="pills"></div>
+
+  <section class="card">
+    <h2>How a proposal flows</h2>
+    <div class="flow">
+      <div class="node input"><small>Input</small><b>Agent proposal</b><span>ticker, side, size, stop, reasoning</span></div>
+      <div class="node input"><small>Input</small><b>Account &amp; calendar</b><span>equity, P&amp;L, position, events</span></div>
+      <div class="arrow">→</div>
+      <div class="node code"><small>Code</small><b>Numeric guards</b><span>schema · size · loser · loss limit · events</span></div>
+      <div class="arrow">→</div>
+      <div class="node jev"><small>Classifier</small><b>Jev</b><span>does it break a rule?</span></div>
+      <div class="arrow">→</div>
+      <div class="node outs"><small>Typed outputs · probabilities</small>
+        <ul><li>Setup violation (tip, rumor, gut)</li><li>Revenge trading</li><li>Missing stop / invalidation</li></ul></div>
+      <div class="arrow">→</div>
+      <div class="node code"><small>Code</small><b>Any ≥ threshold?</b><span>yes → block</span></div>
+      <div class="arrow">→</div>
+      <div class="node system"><small>System</small><b>Execution checks</b><span>freshness · live guards · size · paper order</span></div>
+    </div>
+    <p class="legend"><em>BLOCK</em> on any failed guard, any Jev probability at or over the threshold, or Jev not answering. Approval is not an order: orders go out only from <code>trades run</code> with PAPER_EXECUTION on.</p>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <div class="stat"><h2>Guardrail on test ideas</h2><button id="evalBtn">Run evaluation</button></div>
+      <div id="evalBody" class="note">Loading…</div>
+      <p class="note">Synthetic labeled ideas. Measures blocking, not trading returns.</p>
+    </section>
+    <section class="card">
+      <h2>Paper account</h2>
+      <div id="perfBody" class="note">Loading…</div>
+      <p class="note">From Alpaca's paper account. Paper fills are simulated; results here are not live performance.</p>
+    </section>
+  </div>
+
+  <div class="workspace">
+    <section class="card">
+      <h2>Proposals</h2>
+      <div class="tabs">
+        <button class="ghost active" data-view="recorded">Recorded</button>
+        <button class="ghost" data-view="test">Test ideas</button>
+      </div>
+      <div class="feed" id="feed"></div>
+    </section>
+    <section class="card detail" id="detail"><p class="empty">Select a proposal.</p></section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Check a proposal</h2>
+    <p class="note">Paste JSON. It is checked and recorded, never executed.</p>
+    <textarea id="paste"></textarea>
+    <p><button id="checkBtn">Check</button> <span id="pasteErr" class="err"></span></p>
+  </section>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (v) => (v * 100).toFixed(1) + "%";
+const LABELS = { setup_violation: "Setup violation", revenge_trading: "Revenge trading", missing_stop: "Missing stop" };
+let status = null, recorded = [], testRecords = [], testIdeas = [], view = "recorded", selected = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
+  return r.json();
+}
+
+function renderPills() {
+  const p = [];
+  p.push(`<span class="pill ${status.jev.configured ? "on" : "off"}">Jev ${status.jev.configured ? esc(status.jev.model) : "not configured"}</span>`);
+  p.push(`<span class="pill ${status.alpaca.configured ? "on" : "off"}">Alpaca paper ${status.alpaca.configured ? "connected" : "no keys"}</span>`);
+  p.push(`<span class="pill ${status.paper_execution ? "on" : ""}">Paper execution ${status.paper_execution ? "ON" : "off"}</span>`);
+  p.push(`<span class="pill">Block at ≥ ${pct(status.rules.block_threshold)}</span>`);
+  p.push(`<span class="pill">Max position ${status.rules.max_position_pct}%</span>`);
+  p.push(`<span class="pill">Daily loss limit ${status.rules.max_daily_loss_pct}%</span>`);
+  $("#pills").innerHTML = p.join("");
+}
+
+function renderEval(ev) {
+  if (!ev) { $("#evalBody").innerHTML = "Not run yet."; return; }
+  const s = ev.summary;
+  $("#evalBody").innerHTML = `
+    <div class="stat"><span>Rule violations caught</span><span class="big">${s.caught} / ${s.rule_breaking}</span></div>
+    <div class="stat"><span>False blocks on valid ideas</span><span class="big">${s.false_blocks} / ${s.valid}</span></div>
+    ${s.unavailable ? `<p class="err">${s.unavailable} of ${s.total} ideas unscored: Jev did not answer.</p>` : ""}
+    <p class="note">${esc(ev.jev_model)} · ${esc(ev.evaluated_at)}</p>`;
+}
+
+function renderPerf(perf) {
+  if (!perf.available) { $("#perfBody").innerHTML = `Unavailable: ${esc(perf.reason)}`; return; }
+  const h = perf.history || {}, eq = (h.equity || []).filter((v) => v);
+  let ret = "";
+  if (eq.length > 1) {
+    const i0 = (h.equity || []).findIndex((v) => v);
+    const start = new Date(h.timestamp[i0] * 1000).toISOString().slice(0, 10);
+    const r = eq[eq.length - 1] / eq[0] - 1;
+    ret = `<div class="stat"><span>Return since ${start}</span><span class="big">${(r * 100).toFixed(2)}%</span></div>`;
+  }
+  $("#perfBody").innerHTML = `
+    <div class="stat"><span>Equity</span><span class="big">$${Number(perf.account.equity).toLocaleString()}</span></div>
+    ${ret || '<p class="note">Not enough history for a return yet.</p>'}`;
+}
+
+function items() { return view === "recorded" ? recorded : (testRecords.length ? testRecords : testIdeas.map((p) => ({ proposal: p, decision: null }))); }
+
+function renderFeed() {
+  const list = items();
+  if (!list.length) {
+    $("#feed").innerHTML = `<p class="empty">${view === "recorded" ? "No proposals yet. Run <code>trades run NVDA</code> or paste one below." : "No test ideas."}</p>`;
+    return;
+  }
+  $("#feed").innerHTML = list.map((r, i) => {
+    const p = r.proposal;
+    if (!p) return `<div class="item" data-i="${i}"><div class="row"><span class="tk">${esc(r.id)}</span><span class="badge">NO TRADE</span></div><div class="meta">rating ${esc(r.signal)}</div></div>`;
+    const when = (r.checked_at || p.as_of || "").replace("T", " ").slice(0, 16);
+    return `<div class="item ${selected === r ? "sel" : ""}" data-i="${i}">
+      <div class="row"><span class="tk">${esc(p.ticker)}</span>${r.decision ? `<span class="badge ${r.decision}">${r.decision === "APPROVE" ? "APPROVED" : r.decision === "BLOCK" ? "BLOCKED" : esc(r.decision)}</span>` : ""}</div>
+      <div class="meta">${esc(p.side).toUpperCase()} · ${esc(p.size_pct)}% · ${esc(p.source)} · ${esc(when)}</div></div>`;
+  }).join("");
+  document.querySelectorAll(".item").forEach((el) => el.onclick = () => { selected = list[+el.dataset.i]; renderFeed(); renderDetail(); });
+}
+
+function renderDetail() {
+  const r = selected;
+  if (!r || !r.proposal) { $("#detail").innerHTML = `<p class="empty">${r ? `Rating ${esc(r.signal)}: no trade proposed. Report: ${esc(r.report)}` : "Select a proposal."}</p>`; return; }
+  const p = r.proposal, th = status.rules.block_threshold;
+  const probs = r.jev && r.jev.probabilities;
+  const short = p.reasoning.length > 320 ? p.reasoning.slice(0, 320) + "…" : p.reasoning;
+  const checks = (list) => `<ul class="checks">${list.map((c) => `<li><span class="${c.passed ? "ok" : "no"}">${c.passed ? "pass" : "fail"}</span> ${esc(c.name)} — ${esc(c.detail)}</li>`).join("")}</ul>`;
+  let html = `<div class="head"><h3>${esc(p.ticker)} · ${esc(p.source)}</h3>${r.decision ? `<span class="badge big-badge ${r.decision}">${r.decision === "APPROVE" ? "APPROVED" : "BLOCKED"}</span>` : ""}</div>
+    <div class="kv"><b>${esc(p.side).toUpperCase()}</b> · ${esc(p.size_pct)}% of account · Stop / invalidation: <b>${p.stop != null ? esc(p.stop) : esc(p.invalidation || "none given")}</b>${p.price != null ? ` · price seen ${esc(p.price)}` : ""}</div>
+    <p class="reason">${esc(short)}</p>
+    ${p.reasoning.length > 320 ? `<details><summary>Read full reasoning</summary><p class="reason">${esc(p.reasoning)}</p></details>` : ""}
+    <details><summary>Account &amp; calendar context</summary><pre class="reason">${esc(JSON.stringify({ account: p.account, calendar: p.calendar }, null, 2))}</pre></details>`;
+  if (p.label) html += `<details><summary>Expected (test label)</summary><pre class="reason">${esc(JSON.stringify(p.label, null, 2))}</pre></details>`;
+  if (r.guards) html += `<div class="section-label">Code · numeric guards</div>${checks(r.guards)}`;
+  html += `<div class="section-label">Model judgment · Jev</div>`;
+  if (probs) {
+    html += `<div class="probs">${Object.entries(probs).map(([q, v]) => `
+      <div class="prob"><div class="lbl">${esc(LABELS[q] || q)}</div><div class="v ${v >= th ? "over" : ""}">${pct(v)}</div>
+      <div class="track"><div class="fill ${v >= th ? "over" : ""}" style="width:${v * 100}%"></div><div class="thresh" style="left:${th * 100}%"></div></div></div>`).join("")}</div>
+      <p class="note">${esc(r.jev.model || "")}${r.jev.cached ? " · cached" : ""}</p>`;
+  } else if (r.jev) {
+    html += `<p class="err">Unavailable: ${esc(r.jev.error)}</p>`;
+  } else {
+    html += `<p class="note">${r.decision ? "Not asked: a numeric guard blocked first." : "Not run yet."}</p>`;
+  }
+  if (r.decision) html += `<div class="section-label">Code decision</div><p>${r.decision === "APPROVE" ? "All checks passed" : esc(r.blocked_by)}</p>`;
+  if (r.execution) {
+    html += `<div class="section-label">Execution checks</div>${checks(r.execution.checks)}<p class="foot">${esc(r.execution.note)}${r.execution.submitted ? " · order " + esc(r.execution.response && r.execution.response.id) : ""}</p>`;
+  }
+  $("#detail").innerHTML = html;
+}
+
+async function loadAll() {
+  status = await api("/api/status"); renderPills();
+  recorded = await api("/api/records");
+  const t = await api("/api/test-ideas");
+  testIdeas = t.ideas; testRecords = t.evaluation ? t.evaluation.records : [];
+  renderEval(t.evaluation); renderFeed();
+  api("/api/performance").then(renderPerf).catch((e) => renderPerf({ available: false, reason: e.message }));
+}
+
+document.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("active", x === b));
+  view = b.dataset.view; selected = null; renderFeed(); renderDetail();
+});
+
+$("#evalBtn").onclick = async () => {
+  $("#evalBtn").disabled = true; $("#evalBtn").textContent = "Running…";
+  try {
+    const ev = await api("/api/evaluate", { method: "POST" });
+    testRecords = ev.records; renderEval(ev);
+    if (view === "test") { selected = null; renderFeed(); renderDetail(); }
+  } catch (e) { $("#evalBody").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+  $("#evalBtn").disabled = false; $("#evalBtn").textContent = "Run evaluation";
+};
+
+$("#paste").value = JSON.stringify({
+  ticker: "NVDA", side: "buy", size_pct: 4, stop: 224, price: 237.11,
+  reasoning: "Pullback within an established uptrend: 5% above the rising 20-day mean after five higher closes. Stop below the 20-day mean.",
+  account: { equity: 100000, day_pnl_pct: 0.2, recent_trades: [] },
+  calendar: { date: new Date().toISOString().slice(0, 10), events: [] }
+}, null, 2);
+
+$("#checkBtn").onclick = async () => {
+  $("#pasteErr").textContent = "";
+  let body;
+  try { body = JSON.parse($("#paste").value); } catch (e) { $("#pasteErr").textContent = "Not valid JSON: " + e.message; return; }
+  $("#checkBtn").disabled = true;
+  try {
+    const r = await api("/api/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    recorded.unshift(r); selected = r; view = "recorded";
+    document.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("active", x.dataset.view === "recorded"));
+    renderFeed(); renderDetail();
+  } catch (e) { $("#pasteErr").textContent = e.message; }
+  $("#checkBtn").disabled = false;
+};
+
+loadAll().catch((e) => { $("#evalBody").textContent = e.message; });
+</script>
+</body>
+</html>

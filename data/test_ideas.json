@@ -1,0 +1,168 @@
+{
+  "_comment": "Synthetic, hand-labeled proposals for scoring the guardrail. Prices, P&L and positions are made up; nothing here is a recorded trade or a return. 12 break a rule, 8 are valid.",
+  "ideas": [
+    {
+      "id": "t01-valid-pullback",
+      "ticker": "NVDA", "side": "buy", "size_pct": 4, "stop": 224, "price": 237.1,
+      "reasoning": "Pullback within an established uptrend: price is 5% above its rising 20-day average after five higher closes, and today's dip held the prior breakout level at 230. Stop below the 20-day average at 224.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.3, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t02-valid-breakout",
+      "ticker": "AMD", "side": "buy", "size_pct": 3, "stop": 151.5, "price": 158.2,
+      "reasoning": "Breakout from a six-week range between 145 and 156 on volume 1.8x the 30-day average. Stop back inside the range at 151.50.",
+      "account": {"equity": 100000, "day_pnl_pct": -0.4, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t03-valid-fundamental-prose-invalidation",
+      "ticker": "MSFT", "side": "buy", "size_pct": 3, "price": 512.0,
+      "invalidation": "Exit on a daily close below 495, the low of the post-filing gap.",
+      "reasoning": "The latest 10-Q reports cloud revenue up 31% year over year with operating margin expanding 2 points; guidance was raised. Thesis rests on those reported figures.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.1, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t04-valid-down-day-not-revenge",
+      "ticker": "AAPL", "side": "buy", "size_pct": 2, "stop": 241, "price": 249.5,
+      "reasoning": "Post-earnings drift: reported EPS beat consensus by 9% and the stock has closed higher on three of four sessions since. Stop under the earnings-day low at 241.",
+      "account": {"equity": 100000, "day_pnl_pct": -1.2, "recent_trades": ["sell 40 TSLA @ 412.10 (loss)"]},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t05-valid-trim-winner",
+      "ticker": "META", "side": "sell", "size_pct": 2, "price": 780.0,
+      "invalidation": "Not applicable: this reduces an existing long; the remaining shares keep their stop at 720.",
+      "reasoning": "Trimming a winner: the position is up 18% and now 6.5% of the account, above the 5% sizing rule. Selling about a third brings it back within limits; the uptrend thesis from the reported ad revenue growth is unchanged.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.2, "position": {"qty": 8, "avg_entry_price": 661, "market_value": 6240, "unrealized_pl_pct": 18.0}, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t06-valid-mean-reversion-with-stop",
+      "ticker": "JPM", "side": "buy", "size_pct": 2.5, "stop": 288, "price": 296.4,
+      "reasoning": "Pullback within an established uptrend to the rising 50-day average after a three-day sector-wide selloff; bank's reported net interest income grew 7% last quarter. Stop below the 50-day at 288.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t07-valid-agent-style",
+      "ticker": "GOOGL", "side": "buy", "size_pct": 3, "stop": 236, "price": 251.3,
+      "reasoning": "Portfolio Manager rating: Overweight. Trader: Fundamentals analyst cites search revenue up 12% and cloud operating income tripling in the latest 10-Q; news flow on the antitrust remedy removed the forced-divestiture risk. Technical analyst notes price above the 50- and 200-day averages. Stop at 236, below the August swing low.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.5, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t08-valid-small-loss-day-breakout",
+      "ticker": "AVGO", "side": "buy", "size_pct": 2, "stop": 342, "price": 356.8,
+      "reasoning": "Breakout from a defined range: three tests of 350 resistance since August, cleared today on volume twice the average. Stop at 342, back inside the range.",
+      "account": {"equity": 100000, "day_pnl_pct": -0.8, "recent_trades": ["sell 10 NFLX @ 1180 (loss)"]},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t09-numeric-oversize",
+      "ticker": "TSLA", "side": "buy", "size_pct": 12, "stop": 398, "price": 421.0,
+      "reasoning": "Breakout from a defined range above 415 on heavy volume. Stop at 398.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.1, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "position_size", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t10-numeric-add-to-loser",
+      "ticker": "INTC", "side": "buy", "size_pct": 1, "stop": 21, "price": 23.4,
+      "reasoning": "Pullback within an established trend to the 50-day average; adding to the position at a better price. Stop at 21.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "position": {"qty": 100, "avg_entry_price": 26.1, "market_value": 2340, "unrealized_pl_pct": -10.3}, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "adding_to_loser", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t11-numeric-daily-loss",
+      "ticker": "AMZN", "side": "buy", "size_pct": 2, "stop": 214, "price": 226.0,
+      "reasoning": "Breakout from a defined range above 224 on volume 1.6x average. Stop at 214.",
+      "account": {"equity": 100000, "day_pnl_pct": -2.6, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": "daily_loss", "setup_violation": false, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t12-setup-tip",
+      "ticker": "PLTR", "side": "buy", "size_pct": 3, "stop": 168, "price": 181.0,
+      "reasoning": "A friend who works in defense contracting says a huge government deal is about to be announced next week. Getting in before the news. Stop at 168.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.2, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": true, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t13-setup-rumor",
+      "ticker": "SMCI", "side": "buy", "size_pct": 2, "stop": 41, "price": 46.5,
+      "reasoning": "Reddit is buzzing that a buyout offer is coming at a big premium. Lots of chatter, feels like it's about to rip. Stop at 41.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": true, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t14-setup-gut",
+      "ticker": "COIN", "side": "buy", "size_pct": 2, "stop": 318, "price": 341.0,
+      "reasoning": "I just have a strong feeling crypto is about to run this week. No specific level, but it feels right. Stop at 318.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.4, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": true, "revenge_trading": false, "missing_stop": false}
+    },
+    {
+      "id": "t15-revenge-make-it-back",
+      "ticker": "NFLX", "side": "buy", "size_pct": 4, "stop": 1140, "price": 1176.0,
+      "reasoning": "Lost about $1,500 on NFLX this morning. It's bouncing off the same 1170 level now, so getting back in to make that money back before the close. Stop at 1140.",
+      "account": {"equity": 100000, "day_pnl_pct": -1.5, "recent_trades": ["sell 12 NFLX @ 1162 (loss)"]},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": true, "missing_stop": false}
+    },
+    {
+      "id": "t16-revenge-double-down",
+      "ticker": "SHOP", "side": "buy", "size_pct": 4.5, "stop": 141, "price": 149.0,
+      "reasoning": "Two stops hit today and I'm down for the week. Going bigger on this breakout above 148 so one good trade recovers the losses. Stop at 141.",
+      "account": {"equity": 100000, "day_pnl_pct": -1.1, "recent_trades": ["sell 30 SHOP @ 145 (loss)", "sell 20 UBER @ 88 (loss)"]},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": true, "missing_stop": false}
+    },
+    {
+      "id": "t17-revenge-get-even",
+      "ticker": "CRM", "side": "buy", "size_pct": 3, "stop": 255, "price": 266.0,
+      "reasoning": "Pullback to the 20-day average in an uptrend. Mainly I need this one to get the account back to even for the month after last week's drawdown. Stop at 255.",
+      "account": {"equity": 100000, "day_pnl_pct": -0.6, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": true, "missing_stop": false}
+    },
+    {
+      "id": "t18-nostop-none",
+      "ticker": "ORCL", "side": "buy", "size_pct": 3, "price": 302.0,
+      "reasoning": "Breakout from a defined range above 298 on volume twice the 30-day average after the reported cloud backlog jumped 40%. Will hold and see how it goes.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.2, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": true}
+    },
+    {
+      "id": "t19-nostop-vague",
+      "ticker": "UBER", "side": "buy", "size_pct": 2, "price": 91.0,
+      "invalidation": "Will get out if it starts looking bad.",
+      "reasoning": "Pullback within an established trend to the 50-day average; reported bookings grew 18%.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.0, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": true}
+    },
+    {
+      "id": "t20-nostop-mental",
+      "ticker": "ARM", "side": "buy", "size_pct": 2.5, "price": 162.0,
+      "reasoning": "Post-earnings drift after a reported 15% revenue beat; the stock has gapped up and held. I'll manage the exit by feel rather than setting a stop, since stops just get hunted.",
+      "account": {"equity": 100000, "day_pnl_pct": 0.1, "recent_trades": []},
+      "calendar": {"date": "2026-10-07", "events": []},
+      "label": {"numeric_guard": null, "setup_violation": false, "revenge_trading": false, "missing_stop": true}
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "_comment": "Dates on which new positions are blocked. tickers: a list, or [\"*\"] for every ticker. Example entry: {\"date\": \"2026-11-18\", \"tickers\": [\"NVDA\"], \"reason\": \"NVDA earnings\"}. Fill in real earnings and FOMC dates from a source you trust.",
+  "restrictions": []
+}

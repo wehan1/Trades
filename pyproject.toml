@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trades"
+version = "0.1.0"
+description = "TradingAgents proposals, checked by code guards and Jev, executed on Alpaca paper"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "requests>=2.32",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# The agent desk. Pinned to a release so an upstream change never alters a
+# decision without us choosing to upgrade.
+agents = [
+    "tradingagents @ git+https://github.com/TauricResearch/TradingAgents@v0.7.0",
+]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+trades = "trades.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["trades*"]
+
+[tool.setuptools.package-data]
+trades = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
