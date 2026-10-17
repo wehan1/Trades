@@ -130,6 +130,25 @@ def cmd_backtest(args, s):
     print(f"saved {out}")
 
 
+def cmd_session(args, s):
+    """Session desk: Haiku evaluates, Jev decides, code acts (paper only)."""
+    from trades import session
+    broker = _broker(s)
+    if broker is None:
+        return
+    pairs = [crypto_pair(p) or p for p in args.pairs] if args.pairs else None
+    for r in session.run(s, broker, pairs):
+        verdict = r.get("jev_decision") or {}
+        line = f"{r['pair']}: {r['decision']}"
+        if verdict:
+            line += f"  (Jev {verdict['decision']} {verdict['confidence']:.0%})"
+        if r["blocked_by"]:
+            line += f"  {r['blocked_by']}"
+        if r.get("execution"):
+            line += f"\n  execution: {r['execution']['note']}"
+        print(line)
+
+
 def cmd_performance(args, s):
     try:
         broker = AlpacaPaper(s)
@@ -162,6 +181,10 @@ def main(argv=None):
     p.set_defaults(func=cmd_check)
 
     sub.add_parser("evaluate", help="score the guardrail on the labeled test ideas").set_defaults(func=cmd_evaluate)
+    p = sub.add_parser("session", help="session desk: Haiku evaluates, Jev decides, code acts")
+    p.add_argument("pairs", nargs="*", help="default: CRYPTO_UNIVERSE")
+    p.set_defaults(func=cmd_session)
+
     sub.add_parser("protect", help="keep every crypto position under its stop (run hourly)").set_defaults(func=cmd_protect)
     p = sub.add_parser("backtest", help="backtest both intraday setups on Alpaca 15-minute crypto history")
     p.add_argument("--start", required=True, help="YYYY-MM-DD")

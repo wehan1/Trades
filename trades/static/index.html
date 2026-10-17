@@ -218,7 +218,7 @@ function renderFeed() {
   }
   $("#feed").innerHTML = list.map((r, i) => {
     const p = r.proposal;
-    if (!p) return `<div class="item" data-i="${i}"><div class="row"><span class="tk">${esc(r.id)}</span><span class="badge">NO TRADE</span></div><div class="meta">rating ${esc(r.signal)}</div></div>`;
+    if (!p) return `<div class="item" data-i="${i}"><div class="row"><span class="tk">${esc(r.pair || r.id)}</span><span class="badge">${r.decision === "HOLD" ? "HOLD" : "NO TRADE"}</span></div><div class="meta">${esc(r.signal ? "rating " + r.signal : r.blocked_by || "")}</div></div>`;
     const when = (r.checked_at || p.as_of || "").replace("T", " ").slice(0, 16);
     return `<div class="item ${selected === r ? "sel" : ""}" data-i="${i}">
       <div class="row"><span class="tk">${esc(p.ticker)}</span>${r.decision ? `<span class="badge ${r.decision}">${r.decision === "APPROVE" ? "APPROVED" : r.decision === "BLOCK" ? "BLOCKED" : esc(r.decision)}</span>` : ""}</div>
@@ -229,7 +229,7 @@ function renderFeed() {
 
 function renderDetail() {
   const r = selected;
-  if (!r || !r.proposal) { $("#detail").innerHTML = `<p class="empty">${r ? `Rating ${esc(r.signal)}: no trade proposed. Report: ${esc(r.report)}` : "Select a proposal."}</p>`; return; }
+  if (!r || !r.proposal) { $("#detail").innerHTML = `<p class="empty">${r ? (r.signal ? `Rating ${esc(r.signal)}: no trade proposed. Report: ${esc(r.report)}` : `No trade: ${esc(r.blocked_by)}<br><br>${esc((r.evaluation || {}).reasoning || "")}`) : "Select a proposal."}</p>`; return; }
   const p = r.proposal, th = status.rules.block_threshold;
   const probs = r.jev && r.jev.probabilities;
   const applied = (q) => !r.jev.applied || r.jev.applied.includes(q);
