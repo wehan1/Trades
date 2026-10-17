@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+
+# Runtime state: decisions, Jev cache, evaluation results.
+data/records.jsonl
+data/jev_cache.json
+data/evaluation.json
+data/reports/
