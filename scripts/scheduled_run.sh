@@ -16,6 +16,9 @@ export PAPER_EXECUTION=true
 # The owner's risk settings for the session desk (approved 2026-10-17):
 # up to 75% of the account in crypto, 3% account risk per entry.
 export MAX_CRYPTO_POSITION_PCT=75 MAX_CRYPTO_EXPOSURE_PCT=75 MAX_RISK_PER_TRADE_PCT=3
+# The desk trades BTC only (owner, 2026-10-18). Positions in other coins are
+# still kept under their stops by the stop check, which covers every position.
+export CRYPTO_UNIVERSE=BTC/USD
 
 mkdir -p data
 git fetch -q origin desk-log
