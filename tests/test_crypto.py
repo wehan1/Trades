@@ -1,6 +1,7 @@
 from dataclasses import replace
 
 from trades import agents, execution, guards, jev, pipeline, protect
+from trades.alpaca import AlpacaError
 from trades.assets import crypto_pair, position_symbol, yahoo_symbol
 from trades.proposal import Proposal
 
@@ -70,7 +71,7 @@ class CryptoBroker:
 
     def submit_order(self, order):
         self.orders.append(order)
-        if order["type"] == "market" and order["side"] == "buy":
+        if order["side"] == "buy":
             self.held[order["symbol"]] = self.held.get(order["symbol"], 0) + float(order["qty"]) * 0.9975  # fee in coin
         if order["type"] == "stop_limit":
             self.open.append({"id": f"o{len(self.orders)}", **order})
@@ -107,7 +108,7 @@ def test_crypto_buy_places_stop_on_coins_received(settings):
     broker = CryptoBroker()
     result = execution.run(approved(settings), replace(settings, paper_execution=True), broker)
     entry, stop = broker.orders
-    assert entry["type"] == "market" and entry["time_in_force"] == "gtc" and "order_class" not in entry
+    assert (entry["type"], entry["time_in_force"]) == ("market", "gtc") and "order_class" not in entry
     assert entry["qty"] == "0.076923076"                    # 8% of 100k at 104k, 9 decimals
     assert result["checks"][2] == {"name": "market_open", "passed": True, "detail": "crypto trades 24/7"}
     assert stop["type"] == "stop_limit" and stop["stop_price"] == "97500.0"
@@ -223,3 +224,50 @@ def test_fully_protected_position_is_seen_as_protected(settings):
                     "qty": "0.003115377", "stop_price": "73468.26"}]
     action = protect.ensure(broker, s, "BTC/USD", 73468.26)
     assert action["note"] == "stop in place" and broker.orders == []
+
+
+def test_partly_filled_entry_still_gets_its_stop(settings):
+    broker = CryptoBroker(fill="canceled")
+    broker.wait_for_fill = lambda oid: {"status": "canceled", "filled_qty": "0.03"}
+    result = execution.run(approved(settings), replace(settings, paper_execution=True), broker)
+    assert broker.orders[-1]["type"] == "stop_limit" and "stop:" in result["note"]
+
+
+def test_unfilled_ioc_entry_places_nothing_more(settings):
+    broker = CryptoBroker(fill="canceled")
+    broker.held = {}
+    broker.submit_order = lambda order: (broker.orders.append(order), {"id": "o1"})[1]
+    broker.wait_for_fill = lambda oid: {"status": "canceled", "filled_qty": "0"}
+    result = execution.run(approved(settings), replace(settings, paper_execution=True), broker)
+    assert len(broker.orders) == 1 and "entry canceled" in result["note"]
+
+
+def test_buy_on_a_held_coin_lifts_the_stop_and_puts_one_back(settings):
+    # Alpaca refused a buy beside the starter's stop: "buy limit price should be less
+    # than existing sell limit price" (2026-10-18). The stop comes off and goes back on.
+    s = replace(settings, paper_execution=True)
+    broker = CryptoBroker(positions={"BTC/USD": 0.003})
+    broker.open = [{"id": "s1", "symbol": "BTC/USD", "type": "stop_limit", "side": "sell",
+                    "qty": "0.003", "stop_price": "73468.26"}]
+    result = execution.run(approved(settings, account={"equity": 100000, "position": {"qty": 0.003, "market_value": 312, "unrealized_pl_pct": 0.4}}), s, broker)
+    assert "s1" in broker.cancelled
+    entry, stop = broker.orders
+    assert entry["side"] == "buy" and stop["type"] == "stop_limit" and stop["stop_price"] == "97500.0"
+    assert float(stop["qty"]) > 0.003                     # covers the old coins and the new ones
+
+
+def test_failed_buy_puts_the_old_stop_back(settings):
+    s = replace(settings, paper_execution=True)
+    broker = CryptoBroker(positions={"BTC/USD": 0.003})
+    broker.open = [{"id": "s1", "symbol": "BTC/USD", "type": "stop_limit", "side": "sell",
+                    "qty": "0.003", "stop_price": "73468.26"}]
+    real_submit = broker.submit_order
+
+    def submit(order):
+        if order["side"] == "buy":
+            raise AlpacaError("order rejected: HTTP 403")
+        return real_submit(order)
+    broker.submit_order = submit
+    result = execution.run(approved(settings), s, broker)
+    assert result["note"] == "broker error"
+    assert broker.orders[-1]["type"] == "stop_limit" and broker.orders[-1]["stop_price"] == "73468.26"

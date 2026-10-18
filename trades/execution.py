@@ -168,19 +168,38 @@ def run(record: dict, s: Settings, broker) -> dict:
         if not s.paper_execution:
             result["note"] = "all checks passed; PAPER_EXECUTION is off, so no order was sent"
             return result
-        if crypto and p.side == "sell":
-            # Open sell orders (the stop) reserve the coins this sale needs.
-            for o in broker.open_orders(p.ticker):
+        previous_stop = None
+        if crypto:
+            # Open sell orders get in the way of both sides: a sale needs the coins
+            # the stop reserves, and Alpaca refuses any buy priced above an open
+            # sell limit ("potential wash trade"). The stop comes off for the
+            # order and goes back on right after.
+            sells = [o for o in broker.open_orders(p.ticker) if o.get("side") == "sell"]
+            previous_stop = next((float(o["stop_price"]) for o in sells if o.get("stop_price")), None)
+            for o in sells:
                 broker.cancel_order(o["id"])
-        result["response"] = broker.submit_order(order)
+        try:
+            result["response"] = broker.submit_order(order)
+        except AlpacaError:
+            if crypto and previous_stop is not None:
+                protect.ensure(broker, s, p.ticker, previous_stop)
+            raise
         result["submitted"] = True
         result["note"] = "paper order submitted"
         if crypto:
             fill = broker.wait_for_fill(result["response"]["id"])
-            if fill.get("status") != "filled":
-                result["note"] += f"; entry {fill.get('status', 'unknown')}, stop not placed yet: run `trades protect`"
-                return result
-            stop = float(p.stop) if p.side == "buy" else protect.recorded_stops(_records(s)).get(p.ticker)
+            # Whatever part of the order filled needs its stop.
+            filled = fill.get("status") == "filled" or float(fill.get("filled_qty") or 0) > 0
+            if not filled:
+                result["note"] += f"; entry {fill.get('status', 'unknown')}"
+                if previous_stop is None:
+                    result["note"] += ", nothing bought yet; if it fills later, run `trades protect`"
+                    return result
+            if p.side == "buy":
+                # One stop for the whole position: the new entry's, or the old one back.
+                stop = float(p.stop) if filled else previous_stop
+            else:
+                stop = previous_stop or protect.recorded_stops(_records(s)).get(p.ticker)
             result["stop"] = protect.ensure(broker, s, p.ticker, stop)
             result["note"] += f"; stop: {result['stop']['note']}"
     except AlpacaError as exc:
