@@ -211,3 +211,15 @@ def test_dust_left_after_an_exit_is_not_protected(settings):
 def test_quantities_keep_alpacas_nine_decimals():
     assert protect.fmt_qty(0.000311219) == "0.000311219"
     assert protect.fmt_qty(0.2) == "0.2"
+
+
+def test_fully_protected_position_is_seen_as_protected(settings):
+    # Alpaca reports qty_available 0 when a stop order reserves every coin; the stop
+    # check read that as "no position" (2026-10-18).
+    s = replace(settings, paper_execution=True)
+    broker = CryptoBroker(positions={"BTC/USD": 0.003115377})
+    broker.position = lambda pair: {"qty": "0.003115377", "qty_available": "0", "current_price": "81700"}
+    broker.open = [{"id": "s1", "symbol": "BTC/USD", "type": "stop_limit", "side": "sell",
+                    "qty": "0.003115377", "stop_price": "73468.26"}]
+    action = protect.ensure(broker, s, "BTC/USD", 73468.26)
+    assert action["note"] == "stop in place" and broker.orders == []

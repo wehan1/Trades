@@ -62,7 +62,9 @@ def stop_from_orders(broker, pair: str) -> float | None:
 def ensure(broker, s: Settings, pair: str, stop: float | None, price: float | None = None) -> dict:
     """Bring one pair's stop in line with its position. Returns what was found and done."""
     position = broker.position(pair)
-    qty = float(position.get("qty_available") or position["qty"]) if position else 0.0
+    # "qty", not "qty_available": a stop order reserves the coins it covers, so a
+    # fully protected position reports 0 available.
+    qty = float(position["qty"]) if position else 0.0
     open_orders = broker.open_orders(pair)
     stops_open = [o for o in open_orders if o.get("type") == "stop_limit" and o.get("side") == "sell"]
     action = {"pair": pair, "qty": qty, "stop": stop, "done": [], "note": ""}
@@ -102,10 +104,9 @@ def ensure(broker, s: Settings, pair: str, stop: float | None, price: float | No
     if s.paper_execution:
         for o in stops_open:
             broker.cancel_order(o["id"])
-        # Sell orders reserve the coins, so read what is free after cancelling.
-        held = broker.position(pair)
-        free = float(held.get("qty_available") or held["qty"])
-        action["done"].append(broker.submit_order(stop_order(pair, free, stop, s)).get("id"))
+        # With the old stops cancelled, the whole position is covered again.
+        held = float(broker.position(pair)["qty"])
+        action["done"].append(broker.submit_order(stop_order(pair, held, stop, s)).get("id"))
     return action
 
 
