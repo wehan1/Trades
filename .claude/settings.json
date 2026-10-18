@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash scripts/scheduled_run.sh session)",
+      "Bash(bash scripts/scheduled_run.sh protect)"
+    ]
+  }
+}
