@@ -14,6 +14,9 @@ Setups (entries; each adds a tranche to the coin's position):
 Exit (whole position): a 15-minute close below both the 20-bar EMA and the
 session VWAP, or a tranche's stop trading through.
 
+With ``rsi_filter`` on, entries also need RSI between 50 and 70: rising, not
+overbought.
+
 Entries are taken only on days with a long bias, here a rule (the prior daily
 close above its 50-day average) standing in for the AI desk's daily rating:
 the desk cannot be backtested honestly, because its models know how past days
@@ -24,7 +27,7 @@ from __future__ import annotations
 
 import json
 import math
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -47,6 +50,11 @@ class Params:
     slippage_pct: float = 0.05          # per side, against us
     opening_range_bars: int = 2
     ema_bars: int = 20
+    stop_lookback_bars: int = 4         # vwap setup: stop at the lowest low of these bars
+    rsi_filter: bool = False            # enter only while rsi_low < RSI < rsi_high
+    rsi_bars: int = 14
+    rsi_low: float = 50.0
+    rsi_high: float = 70.0
     bias_days: int = 50
     min_stop_pct: float = 0.15          # stops closer than this are noise, skip
 
@@ -60,6 +68,17 @@ class Bar:
     c: float
     v: float
     vw: float
+
+
+def scaled(p: Params, minutes: int) -> Params:
+    """The same rules on ``minutes``-minute candles: bar-count windows scaled to cover
+    the clock time they cover on 15-minute candles (30-minute range, 20-bar EMA, 4-bar stop,
+    14-bar RSI)."""
+    if 15 % minutes and minutes % 15:
+        raise ValueError(f"{minutes}-minute candles do not divide evenly into 15-minute windows")
+    f = 15 / minutes
+    return replace(p, opening_range_bars=round(p.opening_range_bars * f), ema_bars=round(p.ema_bars * f),
+                   stop_lookback_bars=round(p.stop_lookback_bars * f), rsi_bars=round(p.rsi_bars * f))
 
 
 def session_of(t: datetime) -> tuple[str, date] | None:
@@ -121,11 +140,17 @@ class _Tape:
     prev_close_below_vwap: bool = False
     entered_this_session: bool = False
     recent_lows: list = field(default_factory=list)
+    prev_close: float | None = None
+    avg_gain: float = 0.0
+    avg_loss: float = 0.0
+    changes: int = 0
+    rsi: float | None = None
 
     def update(self, bar: Bar, sess: tuple | None, p: Params) -> float | None:
         k = 2 / (p.ema_bars + 1)
         self.ema = bar.c if self.ema is None else self.ema + k * (bar.c - self.ema)
-        self.recent_lows = (self.recent_lows + [bar.l])[-4:]
+        self.recent_lows = (self.recent_lows + [bar.l])[-p.stop_lookback_bars:]
+        self._update_rsi(bar.c, p.rsi_bars)
         if sess != self.session:
             self.session, self.pv, self.vol, self.bars_in_session = sess, 0.0, 0.0, 0
             self.or_high, self.or_low, self.traded_above_vwap = -math.inf, math.inf, False
@@ -142,8 +167,23 @@ class _Tape:
         return vwap
 
 
+    def _update_rsi(self, close: float, n: int):
+        """Wilder's RSI: a simple average of the first ``n`` changes, smoothed after."""
+        if self.prev_close is not None:
+            gain, loss = max(close - self.prev_close, 0.0), max(self.prev_close - close, 0.0)
+            self.changes += 1
+            w = 1 / min(self.changes, n)
+            self.avg_gain += w * (gain - self.avg_gain)
+            self.avg_loss += w * (loss - self.avg_loss)
+            if self.changes >= n:
+                self.rsi = 100.0 if self.avg_loss == 0 else 100 - 100 / (1 + self.avg_gain / self.avg_loss)
+        self.prev_close = close
+
+
 def entry_signal(tape: _Tape, bar: Bar, vwap: float, p: Params) -> float | None:
     """The stop price if this closed bar triggers an entry, else None."""
+    if p.rsi_filter and not (tape.rsi is not None and p.rsi_low < tape.rsi < p.rsi_high):
+        return None
     if p.setup == "orb":
         # One breakout per session: the range breaks once.
         if (not tape.entered_this_session and tape.bars_in_session > p.opening_range_bars

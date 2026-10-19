@@ -11,4 +11,4 @@ data/evaluation.json
 data/reports/
 screenshots/
 data/bars/
-data/backtest.json
+data/backtest*.json

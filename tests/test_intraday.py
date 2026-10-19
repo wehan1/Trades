@@ -77,3 +77,18 @@ def test_daily_bias_uses_only_prior_closes():
     daily = [Bar(utc(2026, 1, 1) + timedelta(days=i), 0, 0, 0, c, 0, c) for i, c in enumerate([1, 1, 1, 5, 0])]
     bias = intraday.daily_bias(daily, 3)
     assert bias == {date(2026, 1, 4): False, date(2026, 1, 5): True}
+
+
+def test_scaled_windows_cover_the_same_clock_time():
+    p = intraday.scaled(Params(), 3)
+    assert (p.opening_range_bars, p.ema_bars, p.stop_lookback_bars) == (10, 100, 20)
+    assert intraday.scaled(Params(), 15) == Params()
+
+
+def test_rsi_is_100_on_a_steady_rise_and_0_on_a_steady_fall():
+    up, down = intraday._Tape(), intraday._Tape()
+    for i in range(15):
+        up._update_rsi(100 + i, 14)
+        down._update_rsi(100 - i, 14)
+    assert up.rsi == 100.0 and down.rsi == 0.0
+    assert intraday.scaled(Params(), 3).rsi_bars == 70

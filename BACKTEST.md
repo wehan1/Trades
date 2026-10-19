@@ -47,3 +47,34 @@ the minimum are skipped.
 One six-month window; Alpaca's own crypto market is thin, so its candles carry
 wicks a deeper market would not; the daily long filter is a rule standing in
 for the AI desk, which cannot be backtested honestly.
+
+# 3-minute candles and an RSI filter, same window
+
+Same rules and window, run with `trades backtest --start 2026-04-17 --end
+2026-10-17 --minutes 3` and `--rsi`. On 3-minute candles every window covers the
+same clock time as on 15-minute ones (30-minute opening range, 100-bar EMA,
+20-bar stop lookback, 70-bar RSI). The RSI rule was fixed before the run: enter
+only while 50 < RSI(14) < 70. The 15-minute baseline reproduces the table above.
+
+Return at Alpaca market-order costs (0.25% fee + 0.05% slippage per side), then
+before any costs (conservative settings):
+
+| Setup | Candles | RSI | Yours | Conservative | Conservative, no costs |
+|---|---|---|---|---|---|
+| Opening-range breakout | 15m | off | −67.9% | −36.4% | −0.3% |
+| | 15m | on | −68.5% | −36.9% | −2.7% |
+| | 3m | off | −71.9% | −39.7% | −2.0% |
+| | 3m | on | −71.1% | −39.0% | −2.6% |
+| VWAP reclaim | 15m | off | −76.0% | −43.3% | +6.7% |
+| | 15m | on | −65.8% | −34.2% | +5.5% |
+| | 3m | off | −85.7% | −54.4% | +3.9% |
+| | 3m | on | −76.4% | −43.9% | +2.5% |
+
+## What it says
+
+- 3-minute candles lose more than 15-minute ones in every row: more noise per
+  trade and the same fee each time. Win rates fall to 5–10%.
+- RSI helps after costs only because it skips trades (fewer fees). Before costs
+  it lowers the return of every setup, so it filters out more good entries than
+  bad ones.
+- Nothing beats buying and holding over the same six months.
