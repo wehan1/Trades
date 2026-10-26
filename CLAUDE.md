@@ -19,6 +19,11 @@ without a trader-risk PASS from today for that exact order and the owner's typed
 recorded with `ticket.py approve`. Record the yes word for word, never on the owner's
 behalf, and run stock-send only right after it.
 
+The owner's rules for these skills are `config/trader.json` (rules: owner's say-so, own commit).
+`trader/` is wiped with the container: start each stock session with
+`bash scripts/stock_state.sh restore` and end it with `bash scripts/stock_state.sh save`,
+so the daily loss, trade count and day-trade limits carry over.
+
 Every stock buy must PASS the sharia screen (`trades sharia TICKER`,
 `trades/sharia.py`, AAOIFI business and ratio tests from SEC filings); stock-send
 enforces it. REVIEW is not a pass. Only the owner decides overrides, in
