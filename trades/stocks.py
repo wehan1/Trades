@@ -119,6 +119,79 @@ def send(index: int, broker, trader_dir: Path, now: str | None = None, screen=No
     return {"order": body, "response": response, "sharia": sharia}
 
 
+JEV_WAIT_MINUTES = 15
+MAX_CHASE = 0.25      # of the planned risk per share: past that the $ max loss no longer holds
+
+
+def jev_fallback(broker, trader_dir: Path, now: str | None = None, screen=None) -> list[dict]:
+    """The owner's rule (2026-10-27): a buy the owner has not answered JEV_WAIT_MINUTES after
+    Jev approved it is sent on Jev's approval. A decline always wins, a changed order needs a
+    new review and a risk PASS, and a price that ran more than MAX_CHASE of the planned risk
+    above the entry drops the order."""
+    import datetime as dt
+
+    from trades import stock_jev
+    t = _ticket()
+    doc = t.read_json(str(trader_dir / "orders.json"), "orders file", required=False) or {}
+    orders = doc.get("orders", doc) if isinstance(doc, dict) else doc
+    jev_log = stock_jev._read(stock_jev._log(trader_dir)) or {}
+    risk = t.read_json(str(trader_dir / "state" / "risk.json"), "risk check", required=False)
+    state_path = trader_dir / "state" / "broker.json"
+    clock = t.parse_now(now)
+    today = t.to_eastern(clock).date().isoformat()
+    rows = []
+    for index, order in enumerate(orders if isinstance(orders, list) else [], start=1):
+        if str(order.get("side", "")).lower() != "buy":
+            continue
+        fp, symbol = t.fingerprint(order), str(order.get("symbol", "")).upper()
+        row = {"index": index, "symbol": symbol, "sent": False}
+        rows.append(row)
+        review = (jev_log.get("results") or {}).get(fp) if jev_log.get("date") == today else None
+        state = t.load_state(str(state_path))
+        owner = t.latest(state, fp, today)
+        rv, why = t.risk_verdict(risk, fp, today)
+        if owner:
+            row["why"] = f"the owner already answered or it was handled ({owner.get('status')})"
+            continue
+        if not review or not review.get("approved"):
+            row["why"] = "Jev did not approve it" if review else "Jev has not reviewed it"
+            continue
+        if rv is None or rv.get("verdict") != "PASS":
+            row["why"] = f"no risk PASS today: {why or rv}"
+            continue
+        waited = (clock - dt.datetime.fromisoformat(review["at_utc"])).total_seconds() / 60
+        if waited < JEV_WAIT_MINUTES:
+            row["why"] = f"still waiting for the owner ({waited:.0f} of {JEV_WAIT_MINUTES} minutes)"
+            continue
+        plan = order.get("plan") or {}
+        entry, stop = plan.get("entry"), plan.get("stop") or order.get("stop_loss_stop_price")
+        try:
+            price = float(broker.latest_trade(symbol)["price"])
+        except Exception as exc:
+            row["why"] = f"no fresh price ({exc}); not sent"
+            continue
+        if entry and stop and price > float(entry) + MAX_CHASE * (float(entry) - float(stop)):
+            row["why"] = (f"price {price:g} ran past entry {float(entry):g} by more than "
+                          f"{MAX_CHASE:.0%} of the risk; not sent")
+            continue
+        loss, stop_px = t.max_loss(order)
+        state.setdefault("orders", []).append({
+            "at": t.ny_iso(clock), "date": today, "index": index, "fingerprint": fp, "symbol": symbol,
+            "side": order.get("side"), "qty": order.get("qty"), "kind": t.kind_of(order, rv), "max_loss": loss,
+            "stop": stop_px, "plain": t.plain(order), "status": "approved", "approved_by": "jev",
+            "reply": f"no answer from the owner within {JEV_WAIT_MINUTES} minutes; sent on Jev's approval "
+                     f"({review.get('why')})", "paper": True, "broker": "alpaca"})
+        t.write_json(str(state_path), state)
+        try:
+            out = send(index, broker, trader_dir, now, screen)
+        except SendError as exc:
+            row["why"] = f"not sent: {exc}"
+            continue
+        row.update(sent=True, why=f"sent on Jev's approval ({review.get('why')})",
+                   broker_id=(out["response"] or {}).get("id"))
+    return rows
+
+
 def clear_for_sell(broker, symbol: str, qty, wait: float = 15.0, poll: float = 0.5) -> str:
     """Make an approved sell possible: Alpaca refuses a sell while a bracket's stop and
     target legs hold the shares. Cancels only this symbol's open sell orders, waits

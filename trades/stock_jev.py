@@ -150,7 +150,8 @@ def review(index: int, trader_dir: Path, s: Settings, broker, now: str | None = 
         sharia = {"verdict": "not PASS", "reason": str(exc)}
     answer = ask(context(order, trader_dir, sharia, risk), s, post)
     ok, why = verdict(answer, s)
-    record = {"date": today, "index": index, "symbol": order.get("symbol"), "approved": ok, "why": why, **answer}
+    record = {"date": today, "at_utc": t.parse_now(now).isoformat(), "index": index, "symbol": order.get("symbol"),
+              "approved": ok, "why": why, **answer}
     log = _read(_log(trader_dir)) or {}
     if log.get("date") != today:
         log = {"date": today, "results": {}}
