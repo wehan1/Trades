@@ -12,6 +12,7 @@ data/reports/
 screenshots/
 data/bars/
 data/backtest.json
+data/sharia/
 
 # day-trader-skill runtime state (watchlists, plans, orders, logs)
 trader/
