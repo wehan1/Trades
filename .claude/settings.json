@@ -2,7 +2,28 @@
   "permissions": {
     "allow": [
       "Bash(bash scripts/scheduled_run.sh session)",
-      "Bash(bash scripts/scheduled_run.sh protect)"
+      "Bash(bash scripts/scheduled_run.sh protect)",
+      "Bash(python3 *.claude/skills/trader-scanner/scan.py*)",
+      "Bash(python3 *.claude/skills/trader-news/news.py*)",
+      "Bash(python3 *.claude/skills/trader-entry/entry.py*)",
+      "Bash(python3 *.claude/skills/trader-exit/exit.py*)",
+      "Bash(python3 *.claude/skills/trader-timemachine/timemachine.py*)",
+      "Bash(python3 *.claude/skills/trader-budget/size.py*)",
+      "Bash(python3 *.claude/skills/trader-risk/check.py*)",
+      "Bash(python3 *.claude/skills/trader-alerts/alerts.py*)",
+      "Bash(python3 *.claude/skills/trader-analyst/facts.py*)",
+      "Bash(python3 *.claude/skills/trader-broker/ticket.py*)",
+      "Bash(bash scripts/stock_state.sh restore)",
+      "Bash(bash scripts/stock_state.sh save)",
+      "Bash(*.venv/bin/trades sharia*)",
+      "Bash(*.venv/bin/trades performance*)",
+      "Bash(python3 -m venv .venv)",
+      "Bash(.venv/bin/pip install -q -e .)",
+      "Bash(git pull -q origin main)"
+    ],
+    "ask": [
+      "Bash(python3 *.claude/skills/trader-broker/ticket.py approve*)",
+      "Bash(*trades stock-send*)"
     ]
   }
 }
