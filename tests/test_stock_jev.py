@@ -7,6 +7,9 @@ from trades.config import load
 from tests.test_stocks import NOW, ORDER, PASS, Broker, paths, screen_as, ticket, trader  # noqa: F401
 
 
+NO_NEWS = lambda symbol, d: {"items": [{"ticker": symbol, "title": "TSLA prices $2bn stock offering"}]}
+
+
 class Reply:
     def __init__(self, decision, confidence, rules=None):
         self.status_code = 200
@@ -39,9 +42,10 @@ def s(monkeypatch):
 def test_jev_reads_the_whole_ticket(trader, s):
     (trader / "timemachine.json").write_text(json.dumps({"p_target": 0.41, "p_stop": 0.33}))
     post = jev_says("approve", 0.8)
-    r = stock_jev.review(1, trader, s, Broker(), NOW, screen=PASS, post=post)
+    r = stock_jev.review(1, trader, s, Broker(), NOW, screen=PASS, post=post, news=NO_NEWS)
     state = post.sent[0]["state"]
     assert {"order", "plan", "setup", "entry", "odds", "news", "sharia", "risk", "proposal"} <= set(state)
+    assert "stock offering" in state["news"]
     assert "0.41" in state["odds"] and "PASS" in state["sharia"] and "opening-range" in state["allowed_setups"]
     assert r["approved"] and r["why"] == "Jev approves (80%)"
 
@@ -52,7 +56,7 @@ def test_jev_reads_the_whole_ticket(trader, s):
     (("approve", 0.9, {"missing_stop": 0.7}), "missing_stop 70%"),
 ])
 def test_no_approval_blocks_the_send(trader, s, reply, why):
-    r = stock_jev.review(1, trader, s, Broker(), NOW, screen=PASS, post=jev_says(*reply))
+    r = stock_jev.review(1, trader, s, Broker(), NOW, screen=PASS, post=jev_says(*reply), news=NO_NEWS)
     assert not r["approved"] and why in r["why"]
     assert ticket("approve", "--index", "1", "--reply", "yes", *paths(trader)).returncode == 0
     broker = Broker()
@@ -70,7 +74,7 @@ def test_unreviewed_or_changed_order_is_refused(trader):
 
 def test_sharia_failure_reaches_jev_as_not_pass(trader, s):
     post = jev_says("reject", 0.95)
-    stock_jev.review(1, trader, s, Broker(), NOW, screen=screen_as("FAIL", ["banking"]), post=post)
+    stock_jev.review(1, trader, s, Broker(), NOW, screen=screen_as("FAIL", ["banking"]), post=post, news=NO_NEWS)
     assert "not PASS" in post.sent[0]["state"]["sharia"]
 
 

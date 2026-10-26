@@ -53,7 +53,7 @@ def s(monkeypatch):
 
 def test_jev_close_sells_everything_and_clears_the_legs(s, tmp_path):
     b = Broker([TSLA, BTC], LEGS)
-    rows = stock_flatten.run(b, s, tmp_path, post=jev("close", 0.9))
+    rows = stock_flatten.run(b, s, tmp_path, news=lambda sym, d: 'none', post=jev("close", 0.9))
     assert [r["symbol"] for r in rows] == ["TSLA"]                     # crypto untouched
     assert b.canceled == ["stop-1", "tp-1"]
     assert b.orders == [dict(b.orders[0], symbol="TSLA", qty="10", side="sell", type="market")]
@@ -62,7 +62,7 @@ def test_jev_close_sells_everything_and_clears_the_legs(s, tmp_path):
 
 def test_jev_hold_keeps_the_shares_under_a_gtc_stop_at_the_same_price(s, tmp_path):
     b = Broker([TSLA], LEGS)
-    rows = stock_flatten.run(b, s, tmp_path, post=jev("hold", 0.8))
+    rows = stock_flatten.run(b, s, tmp_path, news=lambda sym, d: 'none', post=jev("hold", 0.8))
     assert rows[0]["action"] == "hold"
     o = b.orders[0]
     assert (o["type"], o["stop_price"], o["time_in_force"], o["qty"]) == ("stop", "385.80", "gtc", "10")
@@ -75,18 +75,18 @@ def test_jev_hold_keeps_the_shares_under_a_gtc_stop_at_the_same_price(s, tmp_pat
 ])
 def test_anything_short_of_a_clear_hold_closes(s, tmp_path, post, legs, why):
     b = Broker([TSLA], legs)
-    rows = stock_flatten.run(b, s, tmp_path, post=post)
+    rows = stock_flatten.run(b, s, tmp_path, news=lambda sym, d: 'none', post=post)
     assert rows[0]["action"] == "close" and why in rows[0]["why"]
     assert b.orders[0]["type"] == "market"
 
 
 def test_dry_run_sends_nothing(s, tmp_path):
     b = Broker([TSLA], LEGS)
-    rows = stock_flatten.run(b, s, tmp_path, post=jev("close", 0.9), execute=False)
+    rows = stock_flatten.run(b, s, tmp_path, news=lambda sym, d: 'none', post=jev("close", 0.9), execute=False)
     assert rows[0]["action"] == "close" and b.orders == [] and b.canceled == []
 
 
 def test_flat_account_does_nothing(s, tmp_path):
     b = Broker([BTC])
-    assert stock_flatten.run(b, s, tmp_path, post=jev("close", 0.9)) == []
+    assert stock_flatten.run(b, s, tmp_path, news=lambda sym, d: 'none', post=jev("close", 0.9)) == []
     assert b.orders == []
