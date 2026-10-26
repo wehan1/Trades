@@ -4,8 +4,9 @@ Claude Code is the desk operator. It runs the agents, reads their reports, and k
 
 Rules:
 - Never place, change or cancel an order outside `trades run` (crypto) or `trades stock-send` (stocks).
-  For an approved stock sell, stock-send itself cancels that one stock's open sell orders (the
-  bracket's stop and target) so the sell can go through; nothing else cancels stock orders. Never call the Alpaca API directly to trade.
+  For an approved stock sell, stock-send (and stock-flatten at the close) cancels that one stock's
+  open sell orders (the bracket's stop and target) so the exit can go through; nothing else
+  cancels stock orders. Never call the Alpaca API directly to trade.
 - Never edit thresholds, limits, `ALLOWED_SETUPS`, `config/events.json` or `PAPER_EXECUTION` to get a proposal through. Changes to rules need the owner's explicit say-so and their own commit.
 - Never point the broker at a live endpoint. `ALPACA_TRADING_URL` stays the paper URL.
 - Report results as they are. A blocked proposal, a failed run or a losing week is reported plainly, and nothing is reworded to look better.
@@ -28,9 +29,11 @@ The owner's rules for these skills are `config/trader.json` (rules: owner's say-
 `bash scripts/stock_state.sh restore` and end it with `bash scripts/stock_state.sh save`,
 so the daily loss, trade count and day-trade limits carry over.
 
-Stock day trades are flat by 15:55 New York. At 15:45 the stock desk session lists open stock
-positions; for each, `ticket.py flatten`, trader-risk, `ticket.py show`, the owner's yes, then
-stock-send (it never sells more than is held).
+Stock day trades are flat by the close, decided by Jev (owner's rule, 2026-10-27). At 15:50 New
+York the stock desk runs `trades stock-flatten`: for each stock held, Jev answers close or hold;
+a clear hold (60%+) keeps the shares under a GTC stop at the bracket's stop price, anything else
+sells at market. This is the one stock order that needs no typed yes from the owner, and it only
+ever exits. Report every close and hold.
 
 Every stock buy must PASS the sharia screen (`trades sharia TICKER`,
 `trades/sharia.py`, AAOIFI business and ratio tests from SEC filings); stock-send
