@@ -12,18 +12,16 @@
       "Bash(python3 *.claude/skills/trader-risk/check.py*)",
       "Bash(python3 *.claude/skills/trader-alerts/alerts.py*)",
       "Bash(python3 *.claude/skills/trader-analyst/facts.py*)",
-      "Bash(python3 *.claude/skills/trader-broker/ticket.py*)",
       "Bash(bash scripts/stock_state.sh restore)",
       "Bash(bash scripts/stock_state.sh save)",
       "Bash(*.venv/bin/trades sharia*)",
+      "Bash(*.venv/bin/trades stock-jev*)",
+      "Bash(*.venv/bin/trades stock-auto*)",
+      "Bash(*.venv/bin/trades stock-flatten*)",
       "Bash(*.venv/bin/trades performance*)",
       "Bash(python3 -m venv .venv)",
       "Bash(.venv/bin/pip install -q -e .)",
       "Bash(git pull -q origin main)"
-    ],
-    "ask": [
-      "Bash(python3 *.claude/skills/trader-broker/ticket.py approve*)",
-      "Bash(*trades stock-send*)"
     ]
   }
 }
