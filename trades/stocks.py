@@ -92,7 +92,10 @@ def sharia_gate(order: dict, broker, screen) -> dict | None:
 
 
 def send(index: int, broker, trader_dir: Path, now: str | None = None, screen=None) -> dict:
+    from trades import stock_jev
     order, fp, tool_input = approved_order(index, trader_dir, now)
+    t = _ticket()
+    stock_jev.gate(order, fp, trader_dir, t.to_eastern(t.parse_now(now)).date().isoformat())
     try:
         sharia = sharia_gate(order, broker, screen or _screen_live)
     except Exception as exc:

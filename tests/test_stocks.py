@@ -48,6 +48,8 @@ def trader(tmp_path):
     fp = stocks._ticket().fingerprint(ORDER)
     (d / "state" / "risk.json").write_text(json.dumps(
         {"date": "2026-10-27", "results": [{"fingerprint": fp, "verdict": "PASS", "reasons": []}]}))
+    (d / "state" / "jev.json").write_text(json.dumps(
+        {"date": "2026-10-27", "results": {fp: {"approved": True, "why": "Jev approves (80%)"}}}))
     return d
 
 
