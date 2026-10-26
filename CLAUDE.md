@@ -19,4 +19,9 @@ without a trader-risk PASS from today for that exact order and the owner's typed
 recorded with `ticket.py approve`. Record the yes word for word, never on the owner's
 behalf, and run stock-send only right after it.
 
+Every stock buy must PASS the sharia screen (`trades sharia TICKER`,
+`trades/sharia.py`, AAOIFI business and ratio tests from SEC filings); stock-send
+enforces it. REVIEW is not a pass. Only the owner decides overrides, in
+`config/sharia.json`, in their own commit. Sells are never blocked by the screen.
+
 Checks before committing: `pytest -q`.

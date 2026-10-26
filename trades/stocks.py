@@ -4,7 +4,8 @@ The vendored broker skill (.claude/skills/trader-broker) expects Alpaca's MCP
 server in Claude Desktop. This cloud setup has none, so this module is that
 last step: it sends only an order the skill's own records show as approved
 today, which takes a trader-risk PASS for that exact order (matched by
-fingerprint) and the owner's typed yes recorded by `ticket.py approve`. It
+fingerprint) and the owner's typed yes recorded by `ticket.py approve`. A
+buy must also PASS the sharia screen (trades/sharia.py). It
 never decides anything itself, and the broker URL is the fixed paper one.
 """
 
@@ -74,8 +75,30 @@ def approved_order(index: int, trader_dir: Path, now: str | None = None):
     return order, fp, t.tool_input(order)
 
 
-def send(index: int, broker, trader_dir: Path, now: str | None = None) -> dict:
+def sharia_gate(order: dict, broker, screen) -> dict | None:
+    """Buys must pass the sharia screen; a sell only exits what is held and is never blocked."""
+    if str(order.get("side", "")).lower() != "buy":
+        return None
+    symbol = str(order["symbol"]).upper()
+    try:
+        price = float(broker.latest_trade(symbol)["price"])
+    except Exception:
+        price = float(order.get("limit_price") or (order.get("plan") or {}).get("entry") or 0) or None
+    verdict = screen(symbol, price)
+    if verdict.verdict != "PASS":
+        raise SendError(f"{symbol} is {verdict.verdict} on the sharia screen: "
+                        + ("; ".join(verdict.reasons) or "no reason recorded"))
+    return verdict.to_dict()
+
+
+def send(index: int, broker, trader_dir: Path, now: str | None = None, screen=None) -> dict:
     order, fp, tool_input = approved_order(index, trader_dir, now)
+    try:
+        sharia = sharia_gate(order, broker, screen or _screen_live)
+    except Exception as exc:
+        # A failed or unavailable screen blocks the buy; it is recorded like any refusal.
+        _record(index, trader_dir, "failed", note=f"not sent: {exc}"[:300], now=now)
+        raise SendError(str(exc)) from exc
     body = rest_order(tool_input, f"dts-{fp}")
     try:
         response = broker.submit_order(body)
@@ -83,7 +106,12 @@ def send(index: int, broker, trader_dir: Path, now: str | None = None) -> dict:
         _record(index, trader_dir, "failed", note=str(exc)[:300], now=now)
         raise SendError(f"Alpaca refused order {index}: {exc}") from exc
     _record(index, trader_dir, "placed", broker_id=response.get("id"), now=now)
-    return {"order": body, "response": response}
+    return {"order": body, "response": response, "sharia": sharia}
+
+
+def _screen_live(symbol: str, price: float | None):
+    from trades import config, sharia
+    return sharia.fetch_and_screen(symbol, price, config.load().data_dir / "sharia")
 
 
 def _record(index: int, trader_dir: Path, status: str, broker_id: str | None = None,

@@ -1,0 +1,5 @@
+{
+  "_comment": "Owner decisions that override the computed screen. allow: trade anyway (e.g. a REVIEW you checked); block: never trade. Example: {\"allow\": {\"XYZ\": \"checked revenue breakdown 2026-10\"}, \"block\": {\"ABC\": \"casino revenue\"}}",
+  "allow": {},
+  "block": {}
+}
