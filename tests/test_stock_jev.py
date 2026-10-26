@@ -104,12 +104,12 @@ def reviewed_planned(trader, minutes_ago, approved=True):
 def test_unanswered_jev_approved_buy_is_sent_after_the_wait(planned):
     reviewed_planned(planned, 20)
     broker = Broker()                                   # price 364.2: within the chase limit
-    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS)
+    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS, wait=15)
     assert rows[0]["sent"] and len(broker.orders) == 1
     log = json.loads((planned / "state" / "broker.json").read_text())["orders"]
-    assert log[0]["approved_by"] == "jev" and "no answer from the owner" in log[0]["reply"]
+    assert log[0]["approved_by"] == "jev" and "sent on Jev's approval" in log[0]["reply"]
     assert log[-1]["status"] == "placed"                # counts toward the day's limits
-    assert not stocks.jev_fallback(broker, planned, NOW, screen=PASS)[0]["sent"]   # never twice
+    assert not stocks.jev_fallback(broker, planned, NOW, screen=PASS, wait=15)[0]["sent"]   # never twice
 
 
 @pytest.mark.parametrize("minutes, approved, why", [
@@ -119,7 +119,7 @@ def test_unanswered_jev_approved_buy_is_sent_after_the_wait(planned):
 def test_no_send_before_the_wait_or_without_approval(planned, minutes, approved, why):
     reviewed_planned(planned, minutes, approved)
     broker = Broker()
-    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS)
+    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS, wait=15)
     assert not rows[0]["sent"] and why in rows[0]["why"] and broker.orders == []
 
 
@@ -127,7 +127,7 @@ def test_owner_decline_always_wins(planned):
     reviewed_planned(planned, 20)
     assert ticket("decline", "--index", "1", *paths(planned)).returncode == 0
     broker = Broker()
-    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS)
+    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS, wait=15)
     assert not rows[0]["sent"] and "already answered" in rows[0]["why"] and broker.orders == []
 
 
@@ -135,5 +135,11 @@ def test_price_that_ran_away_is_not_chased(planned):
     reviewed_planned(planned, 20)
     broker = Broker()
     broker.latest_trade = lambda symbol: {"price": 366.0}   # entry 364 + 25% of 5.68 = 365.42
-    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS)
+    rows = stocks.jev_fallback(broker, planned, NOW, screen=PASS, wait=15)
     assert not rows[0]["sent"] and "ran past entry" in rows[0]["why"] and broker.orders == []
+
+
+def test_automatic_desk_sends_at_once(planned):
+    reviewed_planned(planned, 0)
+    broker = Broker()
+    assert stocks.jev_fallback(broker, planned, NOW, screen=PASS)[0]["sent"] and len(broker.orders) == 1

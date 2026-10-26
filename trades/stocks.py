@@ -119,15 +119,16 @@ def send(index: int, broker, trader_dir: Path, now: str | None = None, screen=No
     return {"order": body, "response": response, "sharia": sharia}
 
 
-JEV_WAIT_MINUTES = 15
+JEV_WAIT_MINUTES = 0     # owner, 2026-10-27: fully automatic, no wait for a human answer
 MAX_CHASE = 0.25      # of the planned risk per share: past that the $ max loss no longer holds
 
 
-def jev_fallback(broker, trader_dir: Path, now: str | None = None, screen=None) -> list[dict]:
-    """The owner's rule (2026-10-27): a buy the owner has not answered JEV_WAIT_MINUTES after
-    Jev approved it is sent on Jev's approval. A decline always wins, a changed order needs a
-    new review and a risk PASS, and a price that ran more than MAX_CHASE of the planned risk
-    above the entry drops the order."""
+def jev_fallback(broker, trader_dir: Path, now: str | None = None, screen=None,
+                 wait: float = JEV_WAIT_MINUTES) -> list[dict]:
+    """The owner's rule (2026-10-27): the desk is automatic. A buy Jev approved is sent on
+    Jev's approval once `wait` minutes pass without an answer from the owner (0: at once).
+    A decline from the owner still wins, a changed order needs a new review and a risk PASS,
+    and a price more than MAX_CHASE of the planned risk above the entry drops the order."""
     import datetime as dt
 
     from trades import stock_jev
@@ -160,8 +161,8 @@ def jev_fallback(broker, trader_dir: Path, now: str | None = None, screen=None) 
             row["why"] = f"no risk PASS today: {why or rv}"
             continue
         waited = (clock - dt.datetime.fromisoformat(review["at_utc"])).total_seconds() / 60
-        if waited < JEV_WAIT_MINUTES:
-            row["why"] = f"still waiting for the owner ({waited:.0f} of {JEV_WAIT_MINUTES} minutes)"
+        if waited < wait:
+            row["why"] = f"still waiting for the owner ({waited:.0f} of {wait:g} minutes)"
             continue
         plan = order.get("plan") or {}
         entry, stop = plan.get("entry"), plan.get("stop") or order.get("stop_loss_stop_price")
@@ -179,7 +180,7 @@ def jev_fallback(broker, trader_dir: Path, now: str | None = None, screen=None) 
             "at": t.ny_iso(clock), "date": today, "index": index, "fingerprint": fp, "symbol": symbol,
             "side": order.get("side"), "qty": order.get("qty"), "kind": t.kind_of(order, rv), "max_loss": loss,
             "stop": stop_px, "plain": t.plain(order), "status": "approved", "approved_by": "jev",
-            "reply": f"no answer from the owner within {JEV_WAIT_MINUTES} minutes; sent on Jev's approval "
+            "reply": f"automatic desk: sent on Jev's approval after {waited:.0f} minutes without an owner answer "
                      f"({review.get('why')})", "paper": True, "broker": "alpaca"})
         t.write_json(str(state_path), state)
         try:

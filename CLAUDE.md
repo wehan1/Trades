@@ -17,18 +17,16 @@ Rules:
 Vendored from day-trader-skill (see `vendor/day-trader-skill/NOTICE.md`). They scan,
 plan, size and risk-check US stock trades into `trader/`. Their broker skill expects
 Alpaca's MCP server in Claude Desktop, which this cloud setup does not have; instead
-`trades stock-send --index N` sends the order to Alpaca paper. It refuses any order
-without a trader-risk PASS from today for that exact order, Jev's approval of that exact
-order (`trades stock-jev --index N`, run after trader-risk and before the owner is asked; buys
-only, at least 60% confidence and no rule check flagged), and the owner's typed yes
-recorded with `ticket.py approve`. Record the yes word for word, never on the owner's
-behalf, and run stock-send only right after it.
+`trades stock-send` and `trades stock-auto` send orders to Alpaca paper.
 
-The one exception, the owner's rule (2026-10-27): a buy that Jev approved and the owner has
-neither approved nor declined 15 minutes later is sent by `trades stock-auto` (10:07 New York) on
-Jev's approval, recorded as `approved_by: jev`. A decline always wins, the risk PASS must still
-hold, and a price more than 25% of the planned risk above the entry drops the order. Never use
-stock-auto to get around an answer the owner gave.
+The stock desk is automatic (owner's rule, 2026-10-27: "remove any human decision"). Each
+order needs a trader-risk PASS from today for that exact order and Jev's approval of it
+(`trades stock-jev --index N`: buys only, at least 60% confidence, no rule check flagged);
+`trades stock-auto` then sends it, logged as `approved_by: jev` so it counts toward the day's
+limits. It never chases a price more than 25% of the planned risk above the entry. If the owner
+declines an order in the session, that decline wins. Never approve on the owner's behalf with
+`ticket.py approve`; a typed yes from the owner, when given, is recorded word for word and
+followed by stock-send.
 
 The owner's rules for these skills are `config/trader.json` (rules: owner's say-so, own commit).
 `trader/` is wiped with the container: start each stock session with
@@ -38,8 +36,7 @@ so the daily loss, trade count and day-trade limits carry over.
 Stock day trades are flat by the close, decided by Jev (owner's rule, 2026-10-27). At 15:50 New
 York the stock desk runs `trades stock-flatten`: for each stock held, Jev answers close or hold;
 a clear hold (60%+) keeps the shares under a GTC stop at the bracket's stop price, anything else
-sells at market. This is the one stock order that needs no typed yes from the owner, and it only
-ever exits. Report every close and hold.
+sells at market. It only ever exits. Report every close and hold.
 
 Every stock buy must PASS the sharia screen (`trades sharia TICKER`,
 `trades/sharia.py`, AAOIFI business and ratio tests from SEC filings); stock-send
