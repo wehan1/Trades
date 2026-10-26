@@ -12,3 +12,6 @@ data/reports/
 screenshots/
 data/bars/
 data/backtest.json
+
+# day-trader-skill runtime state (watchlists, plans, orders, logs)
+trader/
