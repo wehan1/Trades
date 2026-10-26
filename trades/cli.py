@@ -217,6 +217,24 @@ def cmd_stock_jev(args, s):
     return 0
 
 
+def cmd_stock_flatten(args, s):
+    """Near the close: Jev decides close or hold (under a GTC stop) for every stock held."""
+    from pathlib import Path
+
+    from trades import stock_flatten
+    broker = _broker(s)
+    if broker is None:
+        return 1
+    rows = stock_flatten.run(broker, s, Path(args.trader_dir), execute=not args.dry_run)
+    if not rows:
+        print("flat: no stock positions")
+    for r in rows:
+        print(f"{r['symbol']} {r['qty']:g}: {r['action'].upper()}  {r['why']}"
+              + (f"\n  {r['done']}" if r["done"] else "  (dry run: nothing sent)")
+              + (f"\n  Jev error: {r['error']}" if r["error"] else ""))
+    return 0
+
+
 def cmd_performance(args, s):
     try:
         broker = AlpacaPaper(s)
@@ -274,6 +292,11 @@ def main(argv=None):
     p.add_argument("--index", type=int, required=True, help="the order number trader-broker showed")
     p.add_argument("--trader-dir", default="trader")
     p.set_defaults(func=cmd_stock_jev)
+
+    p = sub.add_parser("stock-flatten", help="near the close: Jev decides close or hold (GTC stop) per stock held")
+    p.add_argument("--trader-dir", default="trader")
+    p.add_argument("--dry-run", action="store_true", help="ask Jev and report; send nothing")
+    p.set_defaults(func=cmd_stock_flatten)
 
     sub.add_parser("performance", help="paper account equity").set_defaults(func=cmd_performance)
 
