@@ -3,7 +3,9 @@
 Claude Code is the desk operator. It runs the agents, reads their reports, and keeps the record. It is not a trader. Every order decision belongs to the code path in `trades/pipeline.py` and `trades/execution.py`.
 
 Rules:
-- Never place, change or cancel an order outside `trades run`. Never call the Alpaca API directly to trade.
+- Never place, change or cancel an order outside `trades run` (crypto) or `trades stock-send` (stocks).
+  For an approved stock sell, stock-send itself cancels that one stock's open sell orders (the
+  bracket's stop and target) so the sell can go through; nothing else cancels stock orders. Never call the Alpaca API directly to trade.
 - Never edit thresholds, limits, `ALLOWED_SETUPS`, `config/events.json` or `PAPER_EXECUTION` to get a proposal through. Changes to rules need the owner's explicit say-so and their own commit.
 - Never point the broker at a live endpoint. `ALPACA_TRADING_URL` stays the paper URL.
 - Report results as they are. A blocked proposal, a failed run or a losing week is reported plainly, and nothing is reworded to look better.
@@ -25,6 +27,10 @@ The owner's rules for these skills are `config/trader.json` (rules: owner's say-
 `trader/` is wiped with the container: start each stock session with
 `bash scripts/stock_state.sh restore` and end it with `bash scripts/stock_state.sh save`,
 so the daily loss, trade count and day-trade limits carry over.
+
+Stock day trades are flat by 15:55 New York. At 15:45 the stock desk session lists open stock
+positions; for each, `ticket.py flatten`, trader-risk, `ticket.py show`, the owner's yes, then
+stock-send (it never sells more than is held).
 
 Every stock buy must PASS the sharia screen (`trades sharia TICKER`,
 `trades/sharia.py`, AAOIFI business and ratio tests from SEC filings); stock-send

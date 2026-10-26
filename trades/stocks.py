@@ -14,6 +14,7 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from trades.config import ROOT
@@ -103,6 +104,12 @@ def send(index: int, broker, trader_dir: Path, now: str | None = None, screen=No
         _record(index, trader_dir, "failed", note=f"not sent: {exc}"[:300], now=now)
         raise SendError(str(exc)) from exc
     body = rest_order(tool_input, f"dts-{fp}")
+    if str(order.get("side", "")).lower() == "sell":
+        try:
+            body["qty"] = clear_for_sell(broker, str(order["symbol"]).upper(), body.get("qty"))
+        except Exception as exc:
+            _record(index, trader_dir, "failed", note=f"not sent: {exc}"[:300], now=now)
+            raise SendError(str(exc)) from exc
     try:
         response = broker.submit_order(body)
     except Exception as exc:
@@ -110,6 +117,26 @@ def send(index: int, broker, trader_dir: Path, now: str | None = None, screen=No
         raise SendError(f"Alpaca refused order {index}: {exc}") from exc
     _record(index, trader_dir, "placed", broker_id=response.get("id"), now=now)
     return {"order": body, "response": response, "sharia": sharia}
+
+
+def clear_for_sell(broker, symbol: str, qty, wait: float = 15.0, poll: float = 0.5) -> str:
+    """Make an approved sell possible: Alpaca refuses a sell while a bracket's stop and
+    target legs hold the shares. Cancels only this symbol's open sell orders, waits
+    until Alpaca shows none, and returns the quantity to sell (never more than held)."""
+    position = broker.position(symbol)
+    held = float(position["qty"]) if position else 0.0
+    if held <= 0:
+        raise SendError(f"nothing to sell: no {symbol} shares held (did the stop or target already fill?)")
+    for o in broker.open_orders_with_legs(symbol):
+        if o.get("side") == "sell":
+            broker.cancel_order(o["id"])
+    deadline = time.monotonic() + wait
+    while any(o.get("side") == "sell" for o in broker.open_orders_with_legs(symbol)):
+        if time.monotonic() > deadline:
+            raise SendError(f"{symbol}'s stop and target orders did not cancel in {wait:g}s; nothing sold")
+        time.sleep(poll)
+    want = float(qty) if qty not in (None, "") else held
+    return f"{min(want, held):g}"
 
 
 def _screen_live(symbol: str, price: float | None):

@@ -90,6 +90,14 @@ class AlpacaPaper:
     def open_orders(self, symbol: str) -> list[dict]:
         return self._get(ALPACA_TRADING_URL, "/v2/orders", status="open", symbols=symbol) or []
 
+    def open_orders_with_legs(self, symbol: str) -> list[dict]:
+        """Open orders for ``symbol`` with a bracket's stop and target legs listed alongside their parent."""
+        out = []
+        for o in self._get(ALPACA_TRADING_URL, "/v2/orders", status="open", symbols=symbol, nested="true") or []:
+            out.append(o)
+            out.extend(o.get("legs") or [])
+        return out
+
     def filled_buys(self, symbol: str) -> list[dict]:
         """Recent filled buy orders for ``symbol``, newest first."""
         orders = self._get(ALPACA_TRADING_URL, "/v2/orders", status="closed", symbols=symbol,

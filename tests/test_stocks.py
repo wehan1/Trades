@@ -21,8 +21,20 @@ ORDER = {"symbol": "TSLA", "side": "buy", "qty": 8, "type": "market", "time_in_f
 
 
 class Broker:
-    def __init__(self, fail=False):
-        self.orders, self.fail = [], fail
+    def __init__(self, fail=False, held=8, legs=()):
+        self.orders, self.fail, self.held = [], fail, held
+        self.open = [dict(o) for o in legs]
+        self.canceled = []
+
+    def position(self, symbol):
+        return {"symbol": symbol, "qty": str(self.held)} if self.held else None
+
+    def open_orders_with_legs(self, symbol):
+        return [o for o in self.open if o["symbol"] == symbol]
+
+    def cancel_order(self, order_id):
+        self.canceled.append(order_id)
+        self.open = [o for o in self.open if o["id"] != order_id]
 
     def latest_trade(self, symbol):
         return {"price": 364.2, "time": "now"}
@@ -130,3 +142,52 @@ def test_sells_are_never_screened(trader):
     broker = Broker()
     stocks.send(1, broker, trader, NOW, screen=screen_as("FAIL", ["would block a buy"]))
     assert broker.orders[0]["side"] == "sell"
+
+
+def flatten_ticket(trader, qty=8):
+    sell = {"symbol": "TSLA", "side": "sell", "qty": str(qty), "type": "market", "time_in_force": "day",
+            "why": "flat by 15:55 New York"}
+    (trader / "orders.json").write_text(json.dumps({"orders": [sell]}))
+    fp = stocks._ticket().fingerprint(sell)
+    (trader / "state" / "risk.json").write_text(json.dumps(
+        {"date": "2026-10-27", "results": [{"fingerprint": fp, "verdict": "PASS", "reasons": []}]}))
+    ticket("approve", "--index", "1", "--reply", "yes", *paths(trader))
+
+
+LEGS = [{"id": "stop-1", "symbol": "TSLA", "side": "sell", "type": "stop"},
+        {"id": "tp-1", "symbol": "TSLA", "side": "sell", "type": "limit"},
+        {"id": "other", "symbol": "AAPL", "side": "sell", "type": "stop"},
+        {"id": "buy-1", "symbol": "TSLA", "side": "buy", "type": "limit"}]
+
+
+def test_flatten_cancels_only_this_stocks_sell_legs_then_sells(trader):
+    flatten_ticket(trader)
+    broker = Broker(held=8, legs=LEGS)
+    stocks.send(1, broker, trader, NOW)
+    assert broker.canceled == ["stop-1", "tp-1"]
+    assert broker.orders[0]["side"] == "sell" and broker.orders[0]["qty"] == "8"
+
+
+def test_flatten_never_sells_more_than_held(trader):
+    flatten_ticket(trader, qty=8)
+    broker = Broker(held=5)
+    stocks.send(1, broker, trader, NOW)
+    assert broker.orders[0]["qty"] == "5"
+
+
+def test_flatten_with_nothing_held_sends_nothing(trader):
+    flatten_ticket(trader)
+    broker = Broker(held=0, legs=LEGS)
+    with pytest.raises(stocks.SendError, match="nothing to sell"):
+        stocks.send(1, broker, trader, NOW)
+    assert broker.orders == [] and broker.canceled == []
+
+
+def test_flatten_stops_if_legs_will_not_cancel(trader, monkeypatch):
+    flatten_ticket(trader)
+    broker = Broker(held=8, legs=LEGS)
+    broker.cancel_order = lambda order_id: None          # Alpaca never confirms
+    monkeypatch.setattr(stocks.time, "sleep", lambda s: None)
+    with pytest.raises(stocks.SendError, match="did not cancel"):
+        stocks.clear_for_sell(broker, "TSLA", "8", wait=0)
+    assert broker.orders == []
