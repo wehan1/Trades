@@ -15,6 +15,8 @@ changed order needs a new review.
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import requests
@@ -76,7 +78,25 @@ def _about(doc, symbol: str):
     return doc
 
 
-def context(order: dict, trader_dir: Path, sharia: dict | None, risk: dict | None) -> dict[str, str]:
+NEWS = Path(__file__).resolve().parent.parent / ".claude" / "skills" / "trader-news" / "news.py"
+
+
+def news_for(symbol: str, trader_dir: Path) -> dict | str:
+    """The last 48 hours of headlines, 8-K filings and the price move for one stock, from the
+    trader-news skill (--all: items already shown today too; --dry-run: its memory is untouched)."""
+    try:
+        r = subprocess.run([sys.executable, str(NEWS), "--tickers", symbol, "--all", "--dry-run", "--json",
+                            "--config", str(trader_dir / "config.json")],
+                           capture_output=True, text=True, timeout=90)
+        doc = json.loads(r.stdout)
+    except Exception as exc:
+        return f"not available ({type(exc).__name__})"
+    return {"items": [i for i in doc.get("items", []) if str(i.get("ticker", symbol)).upper() == symbol][:15],
+            "moves": doc.get("moves"), "notes": doc.get("notes")}
+
+
+def context(order: dict, trader_dir: Path, sharia: dict | None, risk: dict | None,
+            news=news_for) -> dict[str, str]:
     """What Jev reads, as text."""
     symbol = str(order.get("symbol", "")).upper()
     shown = {k: v for k, v in order.items() if k not in ("plan",)}
@@ -86,7 +106,7 @@ def context(order: dict, trader_dir: Path, sharia: dict | None, risk: dict | Non
         "setup": _text(_about(_read(trader_dir / "watchlist.json"), symbol)),
         "entry": _text(_read(trader_dir / "entry.json")),
         "odds": _text(_read(trader_dir / "timemachine.json")),
-        "news": _text(_about(_read(trader_dir / "state" / "news.json"), symbol)),
+        "news": _text(news(symbol, trader_dir)),
         "sharia": _text(sharia),
         "risk": _text(risk),
         "allowed_setups": "; ".join(STOCK_SETUPS),
@@ -132,7 +152,7 @@ def _log(trader_dir: Path) -> Path:
 
 
 def review(index: int, trader_dir: Path, s: Settings, broker, now: str | None = None,
-           screen=None, post=requests.post) -> dict:
+           screen=None, post=requests.post, news=news_for) -> dict:
     """Ask Jev about order `index` and record the verdict for today."""
     t = stocks._ticket()
     doc = t.read_json(str(trader_dir / "orders.json"), "orders file")
@@ -148,7 +168,7 @@ def review(index: int, trader_dir: Path, s: Settings, broker, now: str | None = 
         sharia = stocks.sharia_gate(order, broker, screen or stocks._screen_live)
     except Exception as exc:
         sharia = {"verdict": "not PASS", "reason": str(exc)}
-    answer = ask(context(order, trader_dir, sharia, risk), s, post)
+    answer = ask(context(order, trader_dir, sharia, risk, news), s, post)
     ok, why = verdict(answer, s)
     record = {"date": today, "at_utc": t.parse_now(now).isoformat(), "index": index, "symbol": order.get("symbol"),
               "approved": ok, "why": why, **answer}

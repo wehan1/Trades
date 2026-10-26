@@ -55,7 +55,8 @@ def _open_stop(broker, symbol: str) -> float | None:
     return None
 
 
-def ask(position: dict, stop: float | None, trader_dir: Path, s: Settings, post=requests.post) -> dict:
+def ask(position: dict, stop: float | None, trader_dir: Path, s: Settings, post=requests.post,
+        news=stock_jev.news_for) -> dict:
     if not s.jev_configured:
         raise RuntimeError("Jev not configured")
     symbol = position["symbol"]
@@ -65,7 +66,7 @@ def ask(position: dict, stop: float | None, trader_dir: Path, s: Settings, post=
         "position": stock_jev._text(shown),
         "stop": stock_jev._text(stop),
         "plan": stock_jev._text(stock_jev._read(trader_dir / "plan.json")),
-        "news": stock_jev._text(stock_jev._about(stock_jev._read(trader_dir / "state" / "news.json"), symbol)),
+        "news": stock_jev._text(news(symbol, trader_dir)),
     }
     body = {"model": s.jev_model, "state": state, "questions": CLOSE_QUESTION}
     headers = {"Authorization": f"Bearer {s.jev_key}"} if s.jev_key else {}
@@ -97,13 +98,14 @@ def _stamp(kind: str, symbol: str) -> str:
     return f"{kind}-{symbol}-{time.time_ns()}"
 
 
-def run(broker, s: Settings, trader_dir: Path, post=requests.post, execute: bool = True) -> list[dict]:
+def run(broker, s: Settings, trader_dir: Path, post=requests.post, execute: bool = True,
+        news=stock_jev.news_for) -> list[dict]:
     out = []
     for p in _stock_positions(broker):
         symbol, qty = p["symbol"], float(p["qty"])
         stop = _open_stop(broker, symbol)
         try:
-            answer = ask(p, stop, trader_dir, s, post)
+            answer = ask(p, stop, trader_dir, s, post, news)
         except Exception as exc:
             answer, error = None, str(exc)
         else:
