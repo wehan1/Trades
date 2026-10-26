@@ -13,8 +13,10 @@ Rules:
 
 Vendored from day-trader-skill (see `vendor/day-trader-skill/NOTICE.md`). They scan,
 plan, size and risk-check US stock trades into `trader/`. Their broker skill expects
-Alpaca's MCP server in Claude Desktop, which this cloud setup does not have, so no
-stock order is sent from these skills yet. Never place a stock order without a
-PASS from trader-risk and the owner's typed yes for that exact order.
+Alpaca's MCP server in Claude Desktop, which this cloud setup does not have; instead
+`trades stock-send --index N` sends the order to Alpaca paper. It refuses any order
+without a trader-risk PASS from today for that exact order and the owner's typed yes
+recorded with `ticket.py approve`. Record the yes word for word, never on the owner's
+behalf, and run stock-send only right after it.
 
 Checks before committing: `pytest -q`.

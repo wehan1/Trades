@@ -149,6 +149,24 @@ def cmd_session(args, s):
         print(line)
 
 
+def cmd_stock_send(args, s):
+    """Send one day-trader-skill stock order, approved today, to Alpaca paper."""
+    from pathlib import Path
+
+    from trades import stocks
+    broker = _broker(s)
+    if broker is None:
+        return 1
+    try:
+        out = stocks.send(args.index, broker, Path(args.trader_dir))
+    except stocks.SendError as exc:
+        print(f"not sent: {exc}")
+        return 1
+    print(f"sent to Alpaca paper: {json.dumps(out['order'])}")
+    print(f"alpaca order id {out['response'].get('id')}, status {out['response'].get('status')}")
+    return 0
+
+
 def cmd_performance(args, s):
     try:
         broker = AlpacaPaper(s)
@@ -190,6 +208,11 @@ def main(argv=None):
     p.add_argument("--start", required=True, help="YYYY-MM-DD")
     p.add_argument("--end", required=True, help="YYYY-MM-DD")
     p.set_defaults(func=cmd_backtest)
+
+    p = sub.add_parser("stock-send", help="send an approved day-trader-skill stock order to Alpaca paper")
+    p.add_argument("--index", type=int, required=True, help="the order number trader-broker showed")
+    p.add_argument("--trader-dir", default="trader")
+    p.set_defaults(func=cmd_stock_send)
 
     sub.add_parser("performance", help="paper account equity").set_defaults(func=cmd_performance)
 
