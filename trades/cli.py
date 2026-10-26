@@ -217,6 +217,23 @@ def cmd_stock_jev(args, s):
     return 0
 
 
+def cmd_stock_auto(args, s):
+    """Send buys the owner left unanswered, on Jev's approval (the owner's rule)."""
+    from pathlib import Path
+
+    from trades import stocks
+    broker = _broker(s)
+    if broker is None:
+        return 1
+    rows = stocks.jev_fallback(broker, Path(args.trader_dir))
+    if not rows:
+        print("no buy orders waiting")
+    for r in rows:
+        print(f"order {r['index']} {r['symbol']}: {'SENT' if r['sent'] else 'not sent'}  {r['why']}"
+              + (f"  (alpaca order {r['broker_id']})" if r.get("broker_id") else ""))
+    return 0
+
+
 def cmd_stock_flatten(args, s):
     """Near the close: Jev decides close or hold (under a GTC stop) for every stock held."""
     from pathlib import Path
@@ -292,6 +309,10 @@ def main(argv=None):
     p.add_argument("--index", type=int, required=True, help="the order number trader-broker showed")
     p.add_argument("--trader-dir", default="trader")
     p.set_defaults(func=cmd_stock_jev)
+
+    p = sub.add_parser("stock-auto", help="send Jev-approved buys the owner left unanswered for 15 minutes")
+    p.add_argument("--trader-dir", default="trader")
+    p.set_defaults(func=cmd_stock_auto)
 
     p = sub.add_parser("stock-flatten", help="near the close: Jev decides close or hold (GTC stop) per stock held")
     p.add_argument("--trader-dir", default="trader")

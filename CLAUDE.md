@@ -24,6 +24,12 @@ only, at least 60% confidence and no rule check flagged), and the owner's typed 
 recorded with `ticket.py approve`. Record the yes word for word, never on the owner's
 behalf, and run stock-send only right after it.
 
+The one exception, the owner's rule (2026-10-27): a buy that Jev approved and the owner has
+neither approved nor declined 15 minutes later is sent by `trades stock-auto` (10:07 New York) on
+Jev's approval, recorded as `approved_by: jev`. A decline always wins, the risk PASS must still
+hold, and a price more than 25% of the planned risk above the entry drops the order. Never use
+stock-auto to get around an answer the owner gave.
+
 The owner's rules for these skills are `config/trader.json` (rules: owner's say-so, own commit).
 `trader/` is wiped with the container: start each stock session with
 `bash scripts/stock_state.sh restore` and end it with `bash scripts/stock_state.sh save`,
