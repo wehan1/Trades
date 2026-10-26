@@ -9,4 +9,12 @@ Rules:
 - Report results as they are. A blocked proposal, a failed run or a losing week is reported plainly, and nothing is reworded to look better.
 - Keep synthetic evaluation (`trades evaluate`) separate from paper-trading results (`trades performance`, `data/records.jsonl`).
 
+## Stock day-trading skills (`.claude/skills/trader-*`)
+
+Vendored from day-trader-skill (see `vendor/day-trader-skill/NOTICE.md`). They scan,
+plan, size and risk-check US stock trades into `trader/`. Their broker skill expects
+Alpaca's MCP server in Claude Desktop, which this cloud setup does not have, so no
+stock order is sent from these skills yet. Never place a stock order without a
+PASS from trader-risk and the owner's typed yes for that exact order.
+
 Checks before committing: `pytest -q`.
