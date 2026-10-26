@@ -199,6 +199,24 @@ def cmd_stock_send(args, s):
     return 0
 
 
+def cmd_stock_jev(args, s):
+    """Jev reviews one day-trader-skill order before the owner is asked."""
+    from pathlib import Path
+
+    from trades import stock_jev, stocks
+    broker = _broker(s)
+    if broker is None:
+        return 1
+    try:
+        r = stock_jev.review(args.index, Path(args.trader_dir), s, broker)
+    except (stocks.SendError, RuntimeError, ValueError) as exc:
+        print(f"no review: {exc}")
+        return 1
+    rules = ", ".join(f"{q} {p:.0%}" for q, p in r["rules"].items())
+    print(f"{r['symbol']}: {'APPROVED' if r['approved'] else 'NOT APPROVED'}  {r['why']}\n  rule checks: {rules}")
+    return 0
+
+
 def cmd_performance(args, s):
     try:
         broker = AlpacaPaper(s)
@@ -251,6 +269,11 @@ def main(argv=None):
     p.add_argument("--index", type=int, required=True, help="the order number trader-broker showed")
     p.add_argument("--trader-dir", default="trader")
     p.set_defaults(func=cmd_stock_send)
+
+    p = sub.add_parser("stock-jev", help="Jev reviews a day-trader-skill order (required before stock-send)")
+    p.add_argument("--index", type=int, required=True, help="the order number trader-broker showed")
+    p.add_argument("--trader-dir", default="trader")
+    p.set_defaults(func=cmd_stock_jev)
 
     sub.add_parser("performance", help="paper account equity").set_defaults(func=cmd_performance)
 
