@@ -149,6 +149,38 @@ def cmd_session(args, s):
         print(line)
 
 
+def cmd_sharia(args, s):
+    """Screen stocks: AAOIFI business and ratio tests from SEC filings."""
+    from trades import sharia
+    tickers = [t.upper() for t in args.tickers]
+    if args.watchlist:
+        doc = json.load(open(args.watchlist, encoding="utf-8"))
+        rows = doc.get("hits", doc.get("symbols", doc)) if isinstance(doc, dict) else doc
+        tickers += [str(r.get("symbol") if isinstance(r, dict) else r).upper() for r in rows]
+    broker = None
+    try:
+        broker = AlpacaPaper(s)
+    except AlpacaError:
+        pass
+    for t in dict.fromkeys(tickers):
+        price = args.price
+        if price is None and broker is not None:
+            try:
+                price = broker.latest_trade(t)["price"]
+            except Exception:
+                price = None
+        try:
+            v = sharia.fetch_and_screen(t, price, s.data_dir / "sharia")
+        except sharia.ScreenError as exc:
+            print(f"{t}: UNAVAILABLE  {exc}")
+            continue
+        ratios = "  ".join(f"{k} {val:.1%}" for k, val in v.ratios.items())
+        note = f"  (override {v.override})" if v.override else ""
+        print(f"{t}: {v.verdict}{note}  {v.company or ''}  SIC {v.sic or '-'}  {ratios}")
+        for reason in v.reasons:
+            print(f"    - {reason}")
+
+
 def cmd_stock_send(args, s):
     """Send one day-trader-skill stock order, approved today, to Alpaca paper."""
     from pathlib import Path
@@ -208,6 +240,12 @@ def main(argv=None):
     p.add_argument("--start", required=True, help="YYYY-MM-DD")
     p.add_argument("--end", required=True, help="YYYY-MM-DD")
     p.set_defaults(func=cmd_backtest)
+
+    p = sub.add_parser("sharia", help="sharia screen for US stocks (AAOIFI tests from SEC filings)")
+    p.add_argument("tickers", nargs="*")
+    p.add_argument("--watchlist", help="a trader-scanner watchlist.json to screen")
+    p.add_argument("--price", type=float, help="share price, if Alpaca cannot quote it")
+    p.set_defaults(func=cmd_sharia)
 
     p = sub.add_parser("stock-send", help="send an approved day-trader-skill stock order to Alpaca paper")
     p.add_argument("--index", type=int, required=True, help="the order number trader-broker showed")
