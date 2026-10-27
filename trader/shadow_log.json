@@ -6,8 +6,8 @@
    "symbol": "SLB",
    "qty": 74,
    "plan_entry": 53.87,
-   "stop": null,
-   "target": null,
+   "stop": 53.06,
+   "target": 55.49,
    "jev": {
     "decision": "reject",
     "confidence": 0.26,
@@ -24,8 +24,8 @@
    "symbol": "BKR",
    "qty": 70,
    "plan_entry": 56.9,
-   "stop": null,
-   "target": null,
+   "stop": 56.56,
+   "target": 57.58,
    "jev": {
     "decision": "reject",
     "confidence": 0.22,
