@@ -1,0 +1,41 @@
+{
+ "_note": "Shadow log: Jev-rejected orders tracked read-only. No orders placed. Separate from data/records.jsonl and trades performance. Outcome = first of stop/target touched on 5-min bars after trigger, else price at 15:55 ET.",
+ "entries": [
+  {
+   "date": "2026-10-27",
+   "symbol": "SLB",
+   "qty": 74,
+   "plan_entry": 53.87,
+   "stop": null,
+   "target": null,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.26,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-10-27",
+   "symbol": "BKR",
+   "qty": 70,
+   "plan_entry": 56.9,
+   "stop": null,
+   "target": null,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.22,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.08,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  }
+ ]
+}
