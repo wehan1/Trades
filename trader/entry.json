@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "CCC",
+  "symbol": "NCLH",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-10-27",
+  "date": "2026-10-28",
   "status": "triggered",
-  "time": "9:50 AM",
-  "bar_start": "09:45",
-  "bar_index": 3,
-  "price": 7.7,
-  "level": 7.69,
+  "time": "9:55 AM",
+  "bar_start": "09:50",
+  "bar_index": 4,
+  "price": 15.89,
+  "level": 15.89,
   "interval": "5m",
   "opening_range": {
-    "high": 7.69,
-    "low": 7.68,
+    "high": 15.89,
+    "low": 15.67,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-10-27T14:07:32Z",
-  "reason": "the 9:45 bar closed above the range high"
+  "checked_at": "2026-10-28T14:03:54Z",
+  "reason": "the 9:50 bar closed above the range high"
 }

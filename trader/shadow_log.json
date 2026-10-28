@@ -46,6 +46,60 @@
     "bar": "12:00",
     "pnl": 47.6
    }
+  },
+  {
+   "date": "2026-10-28",
+   "symbol": "OSS",
+   "qty": 208,
+   "plan_entry": 6.98,
+   "stop": 6.5,
+   "target": 7.94,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.16,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-10-28",
+   "symbol": "KLAC",
+   "qty": 25,
+   "plan_entry": 157.47,
+   "stop": 156.41,
+   "target": 159.59,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.52,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.09,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-10-28",
+   "symbol": "NCLH",
+   "qty": 251,
+   "plan_entry": 15.89,
+   "stop": 15.78,
+   "target": 16.11,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.82,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.12,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }

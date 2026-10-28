@@ -1,10 +1,10 @@
 {
   "created_by": "trader-scanner",
-  "created_at": "2026-10-27T14:06:23Z",
+  "created_at": "2026-10-28T14:03:04Z",
   "mode": "orb",
-  "as_of": "2026-10-27 10:06 ET",
-  "universe": 61,
-  "scanned": 57,
+  "as_of": "2026-10-28 10:03 ET",
+  "universe": 59,
+  "scanned": 56,
   "failed": 0,
   "unconfirmed": 0,
   "source": "yahoo",
@@ -17,134 +17,134 @@
   "note": "A scan is a list of charts that match a rule, not a list of stocks to buy.",
   "hits": [
     {
-      "symbol": "BKR",
+      "symbol": "HLN",
       "setups": [
         "orb"
       ],
-      "price": 56.9,
+      "price": 10.06,
       "at": "9:50 AM",
       "bar_start": "09:45",
       "bar_index": 3,
-      "or_high": 56.76,
-      "or_low": 56.36,
-      "pct_over": 0.24
+      "or_high": 10.03,
+      "or_low": 9.97,
+      "pct_over": 0.3
     },
     {
-      "symbol": "CCC",
+      "symbol": "OSS",
       "setups": [
         "orb"
       ],
-      "price": 7.7,
+      "price": 6.98,
       "at": "9:50 AM",
       "bar_start": "09:45",
       "bar_index": 3,
-      "or_high": 7.69,
-      "or_low": 7.68,
+      "or_high": 6.83,
+      "or_low": 6.17,
+      "pct_over": 2.2
+    },
+    {
+      "symbol": "SNAP",
+      "setups": [
+        "orb"
+      ],
+      "price": 6.12,
+      "at": "9:50 AM",
+      "bar_start": "09:45",
+      "bar_index": 3,
+      "or_high": 6.11,
+      "or_low": 6.03,
       "pct_over": 0.07
     },
     {
-      "symbol": "ERIC",
+      "symbol": "TEM",
       "setups": [
         "orb"
       ],
-      "price": 11.0,
+      "price": 75.5,
       "at": "9:50 AM",
       "bar_start": "09:45",
       "bar_index": 3,
-      "or_high": 10.99,
-      "or_low": 10.94,
-      "pct_over": 0.09
+      "or_high": 75.12,
+      "or_low": 71.75,
+      "pct_over": 0.5
     },
     {
-      "symbol": "SLB",
+      "symbol": "BRZE",
       "setups": [
         "orb"
       ],
-      "price": 53.87,
-      "at": "9:50 AM",
-      "bar_start": "09:45",
-      "bar_index": 3,
-      "or_high": 53.63,
-      "or_low": 52.5,
-      "pct_over": 0.45
-    },
-    {
-      "symbol": "XP",
-      "setups": [
-        "orb"
-      ],
-      "price": 16.57,
-      "at": "9:50 AM",
-      "bar_start": "09:45",
-      "bar_index": 3,
-      "or_high": 16.53,
-      "or_low": 15.81,
-      "pct_over": 0.21
-    },
-    {
-      "symbol": "SGRY",
-      "setups": [
-        "orb"
-      ],
-      "price": 23.25,
+      "price": 45.89,
       "at": "9:55 AM",
       "bar_start": "09:50",
       "bar_index": 4,
-      "or_high": 23.21,
-      "or_low": 23.13,
-      "pct_over": 0.15
+      "or_high": 45.87,
+      "or_low": 45.79,
+      "pct_over": 0.05
     },
     {
-      "symbol": "VFC",
+      "symbol": "CCL",
       "setups": [
         "orb"
       ],
-      "price": 16.75,
+      "price": 27.97,
       "at": "9:55 AM",
       "bar_start": "09:50",
       "bar_index": 4,
-      "or_high": 16.72,
-      "or_low": 16.49,
-      "pct_over": 0.21
+      "or_high": 27.96,
+      "or_low": 27.68,
+      "pct_over": 0.01
     },
     {
-      "symbol": "RRC",
+      "symbol": "JOBY",
       "setups": [
         "orb"
       ],
-      "price": 54.06,
-      "at": "10:00 AM",
-      "bar_start": "09:55",
-      "bar_index": 5,
-      "or_high": 54.04,
-      "or_low": 53.51,
+      "price": 5.06,
+      "at": "9:55 AM",
+      "bar_start": "09:50",
+      "bar_index": 4,
+      "or_high": 5.04,
+      "or_low": 4.95,
+      "pct_over": 0.4
+    },
+    {
+      "symbol": "KLAC",
+      "setups": [
+        "orb"
+      ],
+      "price": 157.47,
+      "at": "9:55 AM",
+      "bar_start": "09:50",
+      "bar_index": 4,
+      "or_high": 157.25,
+      "or_low": 155.58,
+      "pct_over": 0.14
+    },
+    {
+      "symbol": "NCLH",
+      "setups": [
+        "orb"
+      ],
+      "price": 15.89,
+      "at": "9:55 AM",
+      "bar_start": "09:50",
+      "bar_index": 4,
+      "or_high": 15.89,
+      "or_low": 15.67,
       "pct_over": 0.03
     },
     {
-      "symbol": "FPS",
+      "symbol": "BRAI",
       "setups": [
         "orb"
       ],
-      "price": 26.65,
-      "at": "10:05 AM",
-      "bar_start": "10:00",
-      "bar_index": 6,
-      "or_high": 26.6,
-      "or_low": 25.98,
-      "pct_over": 0.19
-    },
-    {
-      "symbol": "USAR",
-      "setups": [
-        "orb"
-      ],
-      "price": 9.65,
-      "at": "10:05 AM",
-      "bar_start": "10:00",
-      "bar_index": 6,
-      "or_high": 9.62,
-      "or_low": 9.02,
-      "pct_over": 0.26
+      "price": 5.08,
+      "at": "10:00 AM",
+      "bar_start": "09:55",
+      "bar_index": 5,
+      "or_high": 5.05,
+      "or_low": 4.44,
+      "pct_over": 0.59
     }
   ]
 }
