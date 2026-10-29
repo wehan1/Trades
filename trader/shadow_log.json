@@ -115,6 +115,60 @@
     "bar": "10:40",
     "pnl": -27.61
    }
+  },
+  {
+   "date": "2026-10-29",
+   "symbol": "VRT",
+   "qty": 16,
+   "plan_entry": 244.28,
+   "stop": 239.9,
+   "target": 253.04,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.44,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.06
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-10-29",
+   "symbol": "VTRS",
+   "qty": 208,
+   "plan_entry": 19.14,
+   "stop": 19.04,
+   "target": 19.34,
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.14,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.09,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-10-29",
+   "symbol": "VFC",
+   "qty": 220,
+   "plan_entry": 18.14,
+   "stop": 17.84,
+   "target": 18.74,
+   "jev": {
+    "decision": "approve",
+    "confidence": 0.24,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.1,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }
