@@ -132,7 +132,12 @@
      "missing_stop": 0.06
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "target",
+    "exit_px": 253.04,
+    "bar": "10:30",
+    "pnl": 140.16
+   }
   },
   {
    "date": "2026-10-29",
@@ -150,7 +155,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "stop",
+    "exit_px": 19.04,
+    "bar": "10:20",
+    "pnl": -20.8
+   }
   },
   {
    "date": "2026-10-29",
@@ -168,7 +178,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "close",
+    "exit_px": 18.364999771118164,
+    "bar": "15:50",
+    "pnl": 49.5
+   }
   }
  ]
 }
