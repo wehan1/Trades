@@ -184,6 +184,66 @@
     "bar": "15:50",
     "pnl": 49.5
    }
+  },
+  {
+   "date": "2026-10-30",
+   "symbol": "CMCSA",
+   "qty": 173,
+   "plan_entry": 22.99,
+   "stop": 22.77,
+   "target": 23.43,
+   "entry_bar": "10:10",
+   "jev": {
+    "decision": "approve",
+    "confidence": 0.1,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null,
+   "note": "run started 10:33 ET, not 09:52; entries 27-37 min old at build time"
+  },
+  {
+   "date": "2026-10-30",
+   "symbol": "KHC",
+   "qty": 162,
+   "plan_entry": 24.6,
+   "stop": 24.44,
+   "target": 24.92,
+   "entry_bar": "10:10",
+   "jev": {
+    "decision": "approve",
+    "confidence": 0.14,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.09,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null,
+   "note": "run started 10:33 ET, not 09:52; entries 27-37 min old at build time"
+  },
+  {
+   "date": "2026-10-30",
+   "symbol": "HAL",
+   "qty": 109,
+   "plan_entry": 36.42,
+   "stop": 36.05,
+   "target": 37.16,
+   "entry_bar": "10:00",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.3,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.06,
+     "missing_stop": 0.04
+    }
+   },
+   "outcome": null,
+   "note": "run started 10:33 ET, not 09:52; entries 27-37 min old at build time"
   }
  ]
 }
