@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "HAL",
+  "symbol": "TMUS",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-10-30",
+  "date": "2026-11-02",
   "status": "triggered",
   "time": "10:00 AM",
   "bar_start": "09:55",
   "bar_index": 5,
-  "price": 36.42,
-  "level": 36.34,
+  "price": 156.63,
+  "level": 156.55,
   "interval": "5m",
   "opening_range": {
-    "high": 36.34,
-    "low": 35.76,
+    "high": 156.55,
+    "low": 154.0,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-10-30T14:37:36Z",
+  "checked_at": "2026-11-02T15:39:27Z",
   "reason": "the 9:55 bar closed above the range high"
 }

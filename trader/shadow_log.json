@@ -259,6 +259,66 @@
     "pnl": -40.33
    },
    "note": "run started 10:33 ET, not 09:52; entries 27-37 min old at build time"
+  },
+  {
+   "date": "2026-11-02",
+   "symbol": "BABA",
+   "qty": 38,
+   "plan_entry": 103.6,
+   "stop": 102.69,
+   "target": 105.42,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.02,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null,
+   "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
+  },
+  {
+   "date": "2026-11-02",
+   "symbol": "CPRT",
+   "qty": 128,
+   "plan_entry": 31.05,
+   "stop": 30.57,
+   "target": 32.01,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "approve",
+    "confidence": 0.06,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.08,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null,
+   "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
+  },
+  {
+   "date": "2026-11-02",
+   "symbol": "TMUS",
+   "qty": 25,
+   "plan_entry": 156.63,
+   "stop": 155.27,
+   "target": 159.35,
+   "entry_bar": "09:55",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.68,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.09,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null,
+   "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
   }
  ]
 }

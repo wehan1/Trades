@@ -1,15 +1,15 @@
 {
- "date": "2026-10-30",
+ "date": "2026-11-02",
  "results": {
-  "cdd86568da54449b": {
-   "date": "2026-10-30",
-   "at_utc": "2026-10-30T14:37:43",
+  "4487ee77ab74cd70": {
+   "date": "2026-11-02",
+   "at_utc": "2026-11-02T15:39:34",
    "index": 1,
-   "symbol": "CMCSA",
+   "symbol": "BABA",
    "approved": false,
-   "why": "Jev approves at only 10% (< 60%)",
-   "decision": "approve",
-   "confidence": 0.1,
+   "why": "Jev rejects (2%)",
+   "decision": "reject",
+   "confidence": 0.02,
    "rules": {
     "setup_violation": 0.05,
     "revenge_trading": 0.03,
@@ -17,35 +17,35 @@
    },
    "model": "typesafe/jev-1.13-20260917"
   },
-  "9d5cd42291657a0f": {
-   "date": "2026-10-30",
-   "at_utc": "2026-10-30T14:37:45",
+  "f30a19f6aa4a0d68": {
+   "date": "2026-11-02",
+   "at_utc": "2026-11-02T15:39:36",
    "index": 2,
-   "symbol": "KHC",
+   "symbol": "CPRT",
    "approved": false,
-   "why": "Jev approves at only 14% (< 60%)",
+   "why": "Jev approves at only 6% (< 60%)",
    "decision": "approve",
-   "confidence": 0.14,
+   "confidence": 0.06,
    "rules": {
-    "setup_violation": 0.04,
-    "revenge_trading": 0.09,
+    "setup_violation": 0.05,
+    "revenge_trading": 0.08,
     "missing_stop": 0.05
    },
    "model": "typesafe/jev-1.13-20260917"
   },
-  "f13c460748772c36": {
-   "date": "2026-10-30",
-   "at_utc": "2026-10-30T14:37:46",
+  "a7728a5fb1d7a5e8": {
+   "date": "2026-11-02",
+   "at_utc": "2026-11-02T15:39:38",
    "index": 3,
-   "symbol": "HAL",
+   "symbol": "TMUS",
    "approved": false,
-   "why": "Jev rejects (30%)",
+   "why": "Jev rejects (68%)",
    "decision": "reject",
-   "confidence": 0.3,
+   "confidence": 0.68,
    "rules": {
     "setup_violation": 0.03,
-    "revenge_trading": 0.06,
-    "missing_stop": 0.04
+    "revenge_trading": 0.09,
+    "missing_stop": 0.05
    },
    "model": "typesafe/jev-1.13-20260917"
   }
