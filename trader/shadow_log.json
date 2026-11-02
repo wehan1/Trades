@@ -277,7 +277,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null,
+   "outcome": {
+    "result": "stop",
+    "exit_px": 102.69,
+    "bar": "12:45",
+    "pnl": -34.58
+   },
    "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
   },
   {
@@ -297,7 +302,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null,
+   "outcome": {
+    "result": "target",
+    "exit_px": 32.01,
+    "bar": "14:00",
+    "pnl": 122.88
+   },
    "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
   },
   {
@@ -317,7 +327,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null,
+   "outcome": {
+    "result": "target",
+    "exit_px": 159.35,
+    "bar": "14:40",
+    "pnl": 68.0
+   },
    "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
   }
  ]
