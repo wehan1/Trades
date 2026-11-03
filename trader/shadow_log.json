@@ -352,7 +352,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "stop",
+    "exit_px": 61.68,
+    "bar": "10:20",
+    "pnl": -56.7
+   }
   },
   {
    "date": "2026-11-03",
@@ -371,7 +376,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "target",
+    "exit_px": 108.52,
+    "bar": "10:50",
+    "pnl": 96.2
+   }
   }
  ]
 }
