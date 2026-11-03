@@ -334,6 +334,44 @@
     "pnl": 68.0
    },
    "note": "run started 10:33 ET, not 09:52; entries 39-49 min old at build time"
+  },
+  {
+   "date": "2026-11-03",
+   "symbol": "INTC",
+   "qty": 63,
+   "plan_entry": 62.58,
+   "stop": 61.68,
+   "target": 64.38,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.58,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.05,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-03",
+   "symbol": "NOW",
+   "qty": 37,
+   "plan_entry": 105.92,
+   "stop": 104.62,
+   "target": 108.52,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.66,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.08,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }

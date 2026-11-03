@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "TMUS",
+  "symbol": "NOW",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-02",
+  "date": "2026-11-03",
   "status": "triggered",
-  "time": "10:00 AM",
-  "bar_start": "09:55",
-  "bar_index": 5,
-  "price": 156.63,
-  "level": 156.55,
+  "time": "9:55 AM",
+  "bar_start": "09:50",
+  "bar_index": 4,
+  "price": 105.92,
+  "level": 105.53,
   "interval": "5m",
   "opening_range": {
-    "high": 156.55,
-    "low": 154.0,
+    "high": 105.53,
+    "low": 103.72,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-02T15:39:27Z",
-  "reason": "the 9:55 bar closed above the range high"
+  "checked_at": "2026-11-03T14:56:49Z",
+  "reason": "the 9:50 bar closed above the range high"
 }
