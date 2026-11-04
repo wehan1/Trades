@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "NOW",
+  "symbol": "CMG",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-03",
+  "date": "2026-11-04",
   "status": "triggered",
   "time": "9:55 AM",
   "bar_start": "09:50",
   "bar_index": 4,
-  "price": 105.92,
-  "level": 105.53,
+  "price": 34.87,
+  "level": 34.8,
   "interval": "5m",
   "opening_range": {
-    "high": 105.53,
-    "low": 103.72,
+    "high": 34.8,
+    "low": 34.08,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-03T14:56:49Z",
+  "checked_at": "2026-11-04T14:57:35Z",
   "reason": "the 9:50 bar closed above the range high"
 }
