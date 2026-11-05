@@ -1,50 +1,50 @@
 {
- "date": "2026-11-04",
+ "date": "2026-11-05",
  "results": {
-  "0027b78215e5abe6": {
-   "date": "2026-11-04",
-   "at_utc": "2026-11-04T14:57:42",
+  "55ff354b1565cf92": {
+   "date": "2026-11-05",
+   "at_utc": "2026-11-05T14:57:23",
    "index": 1,
-   "symbol": "SIRI",
+   "symbol": "CMCSA",
    "approved": false,
-   "why": "Jev approves at only 24% (< 60%)",
-   "decision": "approve",
-   "confidence": 0.24,
-   "rules": {
-    "setup_violation": 0.04,
-    "revenge_trading": 0.03,
-    "missing_stop": 0.05
-   },
-   "model": "typesafe/jev-1.13-20260917"
-  },
-  "d898cb3e62baf919": {
-   "date": "2026-11-04",
-   "at_utc": "2026-11-04T14:57:43",
-   "index": 2,
-   "symbol": "SWKS",
-   "approved": false,
-   "why": "Jev rejects (4%)",
+   "why": "Jev rejects (6%)",
    "decision": "reject",
-   "confidence": 0.04,
+   "confidence": 0.06,
+   "rules": {
+    "setup_violation": 0.05,
+    "revenge_trading": 0.03,
+    "missing_stop": 0.06
+   },
+   "model": "typesafe/jev-1.13-20260917"
+  },
+  "d0147c5dd6ca5688": {
+   "date": "2026-11-05",
+   "at_utc": "2026-11-05T14:57:24",
+   "index": 2,
+   "symbol": "PG",
+   "approved": false,
+   "why": "Jev rejects (6%)",
+   "decision": "reject",
+   "confidence": 0.06,
    "rules": {
     "setup_violation": 0.04,
-    "revenge_trading": 0.09,
+    "revenge_trading": 0.08,
     "missing_stop": 0.05
    },
    "model": "typesafe/jev-1.13-20260917"
   },
-  "66f606aa2e0d3039": {
-   "date": "2026-11-04",
-   "at_utc": "2026-11-04T14:57:45",
+  "69eeae7ee234ebee": {
+   "date": "2026-11-05",
+   "at_utc": "2026-11-05T14:57:25",
    "index": 3,
-   "symbol": "CMG",
+   "symbol": "GIS",
    "approved": false,
-   "why": "Jev approves at only 4% (< 60%)",
-   "decision": "approve",
-   "confidence": 0.04,
+   "why": "Jev rejects (76%)",
+   "decision": "reject",
+   "confidence": 0.76,
    "rules": {
     "setup_violation": 0.03,
-    "revenge_trading": 0.11,
+    "revenge_trading": 0.08,
     "missing_stop": 0.05
    },
    "model": "typesafe/jev-1.13-20260917"

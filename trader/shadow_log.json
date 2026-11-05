@@ -454,6 +454,63 @@
     "bar": "10:25",
     "pnl": -49.02
    }
+  },
+  {
+   "date": "2026-11-05",
+   "symbol": "CMCSA",
+   "qty": 158,
+   "plan_entry": 25.21,
+   "stop": 24.98,
+   "target": 25.67,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.06,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.06
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-05",
+   "symbol": "PG",
+   "qty": 23,
+   "plan_entry": 169.84,
+   "stop": 169.11,
+   "target": 171.3,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.06,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.08,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-05",
+   "symbol": "GIS",
+   "qty": 108,
+   "plan_entry": 36.72,
+   "stop": 36.43,
+   "target": 37.3,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.76,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.08,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }

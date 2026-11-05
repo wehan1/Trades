@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "CMG",
+  "symbol": "GIS",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "status": "triggered",
-  "time": "9:55 AM",
-  "bar_start": "09:50",
-  "bar_index": 4,
-  "price": 34.87,
-  "level": 34.8,
+  "time": "9:50 AM",
+  "bar_start": "09:45",
+  "bar_index": 3,
+  "price": 36.72,
+  "level": 36.7,
   "interval": "5m",
   "opening_range": {
-    "high": 34.8,
-    "low": 34.08,
+    "high": 36.7,
+    "low": 36.17,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-04T14:57:35Z",
-  "reason": "the 9:50 bar closed above the range high"
+  "checked_at": "2026-11-05T14:57:12Z",
+  "reason": "the 9:45 bar closed above the range high"
 }
