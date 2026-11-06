@@ -526,6 +526,63 @@
     "bar": "10:00",
     "pnl": -31.32
    }
+  },
+  {
+   "date": "2026-11-06",
+   "symbol": "KLAC",
+   "qty": 28,
+   "plan_entry": 141.9,
+   "stop": 139.23,
+   "target": 147.24,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.26,
+    "rules": {
+     "setup_violation": 0.05,
+     "revenge_trading": 0.04,
+     "missing_stop": 0.06
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-06",
+   "symbol": "COHR",
+   "qty": 15,
+   "plan_entry": 191.12,
+   "stop": 184.72,
+   "target": 203.92,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.38,
+    "rules": {
+     "setup_violation": 0.06,
+     "revenge_trading": 0.12,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-06",
+   "symbol": "MU",
+   "qty": 5,
+   "plan_entry": 718.31,
+   "stop": 703.18,
+   "target": 748.57,
+   "entry_bar": "09:45",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.32,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.13,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }
