@@ -598,6 +598,63 @@
     "bar": "10:10",
     "pnl": -75.65
    }
+  },
+  {
+   "date": "2026-11-10",
+   "symbol": "CSCO",
+   "qty": 40,
+   "plan_entry": 97.86,
+   "stop": 97.09,
+   "target": 99.4,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.08,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-10",
+   "symbol": "MRVL",
+   "qty": 19,
+   "plan_entry": 155.82,
+   "stop": 150.72,
+   "target": 166.02,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.1,
+    "rules": {
+     "setup_violation": 0.04,
+     "revenge_trading": 0.08,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
+  },
+  {
+   "date": "2026-11-10",
+   "symbol": "INTC",
+   "qty": 67,
+   "plan_entry": 59.46,
+   "stop": 58.22,
+   "target": 61.94,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "approve",
+    "confidence": 0.08,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.11,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }

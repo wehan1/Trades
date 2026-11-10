@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "MU",
+  "symbol": "INTC",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-06",
+  "date": "2026-11-10",
   "status": "triggered",
-  "time": "9:50 AM",
-  "bar_start": "09:45",
-  "bar_index": 3,
-  "price": 718.31,
-  "level": 717.7,
+  "time": "9:55 AM",
+  "bar_start": "09:50",
+  "bar_index": 4,
+  "price": 59.46,
+  "level": 58.86,
   "interval": "5m",
   "opening_range": {
-    "high": 717.7,
-    "low": 688.67,
+    "high": 58.86,
+    "low": 57.58,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-06T14:57:51Z",
-  "reason": "the 9:45 bar closed above the range high"
+  "checked_at": "2026-11-10T14:58:06Z",
+  "reason": "the 9:50 bar closed above the range high"
 }

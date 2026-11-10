@@ -1,50 +1,50 @@
 {
- "date": "2026-11-06",
+ "date": "2026-11-10",
  "results": {
-  "ee8528779f5c34cf": {
-   "date": "2026-11-06",
-   "at_utc": "2026-11-06T14:57:58",
+  "7196efc2a63126a2": {
+   "date": "2026-11-10",
+   "at_utc": "2026-11-10T14:58:17",
    "index": 1,
-   "symbol": "KLAC",
+   "symbol": "CSCO",
    "approved": false,
-   "why": "Jev rejects (26%)",
+   "why": "Jev rejects (8%)",
    "decision": "reject",
-   "confidence": 0.26,
+   "confidence": 0.08,
    "rules": {
-    "setup_violation": 0.05,
-    "revenge_trading": 0.04,
-    "missing_stop": 0.06
-   },
-   "model": "typesafe/jev-1.13-20260917"
-  },
-  "ed49110b9dfc4f7d": {
-   "date": "2026-11-06",
-   "at_utc": "2026-11-06T14:58:00",
-   "index": 2,
-   "symbol": "COHR",
-   "approved": false,
-   "why": "Jev rejects (38%)",
-   "decision": "reject",
-   "confidence": 0.38,
-   "rules": {
-    "setup_violation": 0.06,
-    "revenge_trading": 0.12,
+    "setup_violation": 0.04,
+    "revenge_trading": 0.03,
     "missing_stop": 0.05
    },
    "model": "typesafe/jev-1.13-20260917"
   },
-  "a916ab5820998c0f": {
-   "date": "2026-11-06",
-   "at_utc": "2026-11-06T14:58:02",
-   "index": 3,
-   "symbol": "MU",
+  "f8e9bc7ef43052d5": {
+   "date": "2026-11-10",
+   "at_utc": "2026-11-10T14:58:18",
+   "index": 2,
+   "symbol": "MRVL",
    "approved": false,
-   "why": "Jev rejects (32%)",
+   "why": "Jev rejects (10%)",
    "decision": "reject",
-   "confidence": 0.32,
+   "confidence": 0.1,
    "rules": {
     "setup_violation": 0.04,
-    "revenge_trading": 0.13,
+    "revenge_trading": 0.08,
+    "missing_stop": 0.05
+   },
+   "model": "typesafe/jev-1.13-20260917"
+  },
+  "80a7b680f991730a": {
+   "date": "2026-11-10",
+   "at_utc": "2026-11-10T14:58:20",
+   "index": 3,
+   "symbol": "INTC",
+   "approved": false,
+   "why": "Jev approves at only 8% (< 60%)",
+   "decision": "approve",
+   "confidence": 0.08,
+   "rules": {
+    "setup_violation": 0.03,
+    "revenge_trading": 0.11,
     "missing_stop": 0.05
    },
    "model": "typesafe/jev-1.13-20260917"
