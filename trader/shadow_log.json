@@ -616,7 +616,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "stop",
+    "exit_px": 97.09,
+    "bar": "12:35",
+    "pnl": -30.8
+   }
   },
   {
    "date": "2026-11-10",
@@ -635,7 +640,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "stop",
+    "exit_px": 150.72,
+    "bar": "12:35",
+    "pnl": -96.9
+   }
   },
   {
    "date": "2026-11-10",
@@ -654,7 +664,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "stop",
+    "exit_px": 58.22,
+    "bar": "10:45",
+    "pnl": -83.08
+   }
   }
  ]
 }
