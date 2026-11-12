@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "INTC",
+  "symbol": "INSM",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-10",
+  "date": "2026-11-12",
   "status": "triggered",
   "time": "9:55 AM",
   "bar_start": "09:50",
   "bar_index": 4,
-  "price": 59.46,
-  "level": 58.86,
+  "price": 119.74,
+  "level": 119.66,
   "interval": "5m",
   "opening_range": {
-    "high": 58.86,
-    "low": 57.58,
+    "high": 119.66,
+    "low": 118.25,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-10T14:58:06Z",
+  "checked_at": "2026-11-12T14:57:03Z",
   "reason": "the 9:50 bar closed above the range high"
 }

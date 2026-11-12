@@ -1,10 +1,10 @@
 {
   "created_by": "trader-scanner",
-  "created_at": "2026-11-10T14:57:08Z",
+  "created_at": "2026-11-12T14:56:40Z",
   "mode": "orb",
-  "as_of": "2026-11-10 09:57 ET",
-  "universe": 58,
-  "scanned": 55,
+  "as_of": "2026-11-12 09:56 ET",
+  "universe": 50,
+  "scanned": 50,
   "failed": 0,
   "unconfirmed": 0,
   "source": "yahoo",
@@ -17,134 +17,30 @@
   "note": "A scan is a list of charts that match a rule, not a list of stocks to buy.",
   "hits": [
     {
-      "symbol": "LFST",
+      "symbol": "RIOT",
       "setups": [
         "orb"
       ],
-      "price": 14.59,
+      "price": 18.58,
       "at": "9:50 AM",
       "bar_start": "09:45",
       "bar_index": 3,
-      "or_high": 14.55,
-      "or_low": 14.28,
-      "pct_over": 0.27
-    },
-    {
-      "symbol": "PBR",
-      "setups": [
-        "orb"
-      ],
-      "price": 18.17,
-      "at": "9:50 AM",
-      "bar_start": "09:45",
-      "bar_index": 3,
-      "or_high": 18.11,
-      "or_low": 17.89,
-      "pct_over": 0.36
-    },
-    {
-      "symbol": "AVTX",
-      "setups": [
-        "orb"
-      ],
-      "price": 7.41,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 7.38,
-      "or_low": 6.98,
+      "or_high": 18.51,
+      "or_low": 17.25,
       "pct_over": 0.41
     },
     {
-      "symbol": "CBRS",
+      "symbol": "INSM",
       "setups": [
         "orb"
       ],
-      "price": 95.78,
+      "price": 119.74,
       "at": "9:55 AM",
       "bar_start": "09:50",
       "bar_index": 4,
-      "or_high": 95.5,
-      "or_low": 92.15,
-      "pct_over": 0.29
-    },
-    {
-      "symbol": "CSCO",
-      "setups": [
-        "orb"
-      ],
-      "price": 97.86,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 97.77,
-      "or_low": 96.42,
-      "pct_over": 0.09
-    },
-    {
-      "symbol": "INTC",
-      "setups": [
-        "orb"
-      ],
-      "price": 59.46,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 58.86,
-      "or_low": 57.58,
-      "pct_over": 1.02
-    },
-    {
-      "symbol": "MRVL",
-      "setups": [
-        "orb"
-      ],
-      "price": 155.82,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 153.66,
-      "or_low": 147.79,
-      "pct_over": 1.41
-    },
-    {
-      "symbol": "NOW",
-      "setups": [
-        "orb"
-      ],
-      "price": 101.83,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 101.68,
-      "or_low": 99.14,
-      "pct_over": 0.15
-    },
-    {
-      "symbol": "SNDK",
-      "setups": [
-        "orb"
-      ],
-      "price": 883.63,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 865.78,
-      "or_low": 839.41,
-      "pct_over": 2.06
-    },
-    {
-      "symbol": "UMC",
-      "setups": [
-        "orb"
-      ],
-      "price": 15.23,
-      "at": "9:55 AM",
-      "bar_start": "09:50",
-      "bar_index": 4,
-      "or_high": 15.14,
-      "or_low": 14.82,
-      "pct_over": 0.66
+      "or_high": 119.66,
+      "or_low": 118.25,
+      "pct_over": 0.07
     }
   ]
 }

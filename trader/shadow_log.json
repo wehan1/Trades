@@ -670,6 +670,25 @@
     "bar": "10:45",
     "pnl": -83.08
    }
+  },
+  {
+   "date": "2026-11-12",
+   "symbol": "INSM",
+   "qty": 33,
+   "plan_entry": 119.74,
+   "stop": 118.95,
+   "target": 121.32,
+   "entry_bar": "09:50",
+   "jev": {
+    "decision": "reject",
+    "confidence": 0.78,
+    "rules": {
+     "setup_violation": 0.03,
+     "revenge_trading": 0.03,
+     "missing_stop": 0.05
+    }
+   },
+   "outcome": null
   }
  ]
 }
