@@ -688,7 +688,12 @@
      "missing_stop": 0.05
     }
    },
-   "outcome": null
+   "outcome": {
+    "result": "stop",
+    "exit_px": 118.95,
+    "bar": "09:55",
+    "pnl": -26.07
+   }
   }
  ]
 }
