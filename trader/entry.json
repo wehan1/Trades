@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "INSM",
+  "symbol": "CMCSA",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-12",
+  "date": "2026-11-16",
   "status": "triggered",
   "time": "9:55 AM",
   "bar_start": "09:50",
   "bar_index": 4,
-  "price": 119.74,
-  "level": 119.66,
+  "price": 25.58,
+  "level": 25.55,
   "interval": "5m",
   "opening_range": {
-    "high": 119.66,
-    "low": 118.25,
+    "high": 25.55,
+    "low": 25.33,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-12T14:57:03Z",
+  "checked_at": "2026-11-16T14:57:57Z",
   "reason": "the 9:50 bar closed above the range high"
 }
