@@ -1,22 +1,22 @@
 {
   "created_by": "trader-entry",
-  "symbol": "CMG",
+  "symbol": "AMD",
   "setup": "orb",
   "side": "buy",
-  "date": "2026-11-18",
+  "date": "2026-11-19",
   "status": "triggered",
   "time": "9:50 AM",
   "bar_start": "09:45",
   "bar_index": 3,
-  "price": 36.53,
-  "level": 36.47,
+  "price": 554.47,
+  "level": 552.0,
   "interval": "5m",
   "opening_range": {
-    "high": 36.47,
-    "low": 35.08,
+    "high": 552.0,
+    "low": 537.09,
     "minutes": 15
   },
   "source": "yahoo",
-  "checked_at": "2026-11-18T14:57:57Z",
+  "checked_at": "2026-11-19T14:57:09Z",
   "reason": "the 9:45 bar closed above the range high"
 }
