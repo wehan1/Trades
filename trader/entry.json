@@ -1,0 +1,22 @@
+{
+  "created_by": "trader-entry",
+  "symbol": "WMT",
+  "setup": "orb",
+  "side": "buy",
+  "date": "2026-11-24",
+  "status": "triggered",
+  "time": "9:55 AM",
+  "bar_start": "09:50",
+  "bar_index": 4,
+  "price": 131.3,
+  "level": 131.29,
+  "interval": "5m",
+  "opening_range": {
+    "high": 131.29,
+    "low": 129.74,
+    "minutes": 15
+  },
+  "source": "yahoo",
+  "checked_at": "2026-11-24T14:57:22Z",
+  "reason": "the 9:50 bar closed above the range high"
+}
