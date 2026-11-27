@@ -1,0 +1,22 @@
+{
+  "created_by": "trader-entry",
+  "symbol": "INSM",
+  "setup": "orb",
+  "side": "buy",
+  "date": "2026-11-27",
+  "status": "triggered",
+  "time": "9:50 AM",
+  "bar_start": "09:45",
+  "bar_index": 3,
+  "price": 170.68,
+  "level": 170.66,
+  "interval": "5m",
+  "opening_range": {
+    "high": 170.66,
+    "low": 170.25,
+    "minutes": 15
+  },
+  "source": "yahoo",
+  "checked_at": "2026-11-27T14:57:12Z",
+  "reason": "the 9:45 bar closed above the range high"
+}
